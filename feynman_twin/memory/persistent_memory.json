@@ -11,9 +11,9 @@
     },
     {
       "topic": "quantum",
-      "count": 2,
+      "count": 3,
       "first_discussed": "2026-06-02T18:04:49.777589",
-      "last_discussed": "2026-06-02T18:06:05.716836"
+      "last_discussed": "2026-06-02T19:11:15.213802"
     },
     {
       "topic": "science",
@@ -23,7 +23,7 @@
     }
   ],
   "user_preferences": {},
-  "interaction_count": 31,
+  "interaction_count": 32,
   "key_insights": [
     {
       "insight": "Discussion about: test...",
@@ -60,6 +60,10 @@
     {
       "insight": "Discussion about: Based on what I just told you I was working on, ho...",
       "timestamp": "2026-06-02T18:17:38.964749"
+    },
+    {
+      "insight": "Discussion about: What is quantum mechanics?...",
+      "timestamp": "2026-06-02T19:11:15.218873"
     }
   ]
 }
