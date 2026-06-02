@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feynman Twin - Memory Dashboard</title>
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    .dashboard-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .memory-card {
+      background: rgba(31, 40, 85, 0.52);
+      border: 1px solid rgba(117, 132, 215, 0.4);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .memory-card h3 {
+      margin: 0 0 0.8rem 0;
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+
+    .stat-box {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem;
+      margin: 0.3rem 0;
+      background: rgba(6, 8, 22, 0.5);
+      border-radius: 6px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+    }
+
+    .stat-value {
+      color: var(--ok);
+      font-weight: 600;
+    }
+
+    .interaction-item {
+      background: rgba(6, 8, 22, 0.5);
+      border-left: 3px solid var(--accent);
+      padding: 0.6rem;
+      margin: 0.5rem 0;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    .interaction-question {
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .interaction-answer {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .insight-item {
+      background: rgba(109, 227, 143, 0.1);
+      border-left: 3px solid var(--ok);
+      padding: 0.5rem;
+      margin: 0.4rem 0;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    .topic-badge {
+      display: inline-block;
+      background: rgba(133, 166, 255, 0.3);
+      padding: 0.3rem 0.6rem;
+      margin: 0.2rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+    }
+
+    .nav-links {
+      margin: 1rem 0;
+    }
+
+    .nav-links a {
+      color: var(--accent);
+      text-decoration: none;
+      margin-right: 1rem;
+    }
+
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+
+    .refresh-btn {
+      margin-top: 1rem;
+      padding: 0.6rem 1rem;
+      background: linear-gradient(135deg, #6f82ff, #8b53ff);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .refresh-btn:hover {
+      opacity: 0.9;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="galaxy-overlay"></div>
+  <main class="app">
+    <header class="header">
+      <h1>🧠 Memory Dashboard</h1>
+      <p class="subtitle">Visualize what Feynman's Digital Twin remembers</p>
+      <div class="nav-links">
+        <a href="index.html">← Back to Chat</a>
+        <button class="refresh-btn" onclick="loadMemoryData()">🔄 Refresh</button>
+      </div>
+    </header>
+
+    <div id="loading" class="loading">Loading memory data...</div>
+
+    <div id="dashboard" class="dashboard-container" style="display: none;">
+      <!-- Stats Card -->
+      <div class="memory-card">
+        <h3>📊 Memory Statistics</h3>
+        <div class="stat-box">
+          <span class="stat-label">Total Interactions:</span>
+          <span class="stat-value" id="stat-interactions">0</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Insights Captured:</span>
+          <span class="stat-value" id="stat-insights">0</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Topics Discussed:</span>
+          <span class="stat-value" id="stat-topics">0</span>
+        </div>
+      </div>
+
+      <!-- Recent Interactions Card -->
+      <div class="memory-card" style="grid-column: span 2;">
+        <h3>💬 Recent Interactions</h3>
+        <div id="interactions-list"></div>
+      </div>
+
+      <!-- Insights Card -->
+      <div class="memory-card">
+        <h3>💡 Key Insights</h3>
+        <div id="insights-list"></div>
+      </div>
+
+      <!-- Topics Card -->
+      <div class="memory-card">
+        <h3>🏷️ Topics of Interest</h3>
+        <div id="topics-list"></div>
+      </div>
+
+      <!-- User Preferences Card -->
+      <div class="memory-card">
+        <h3>⚙️ User Preferences</h3>
+        <div id="preferences-list"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:8000";
+
+    async function loadMemoryData() {
+      const loading = document.getElementById('loading');
+      const dashboard = document.getElementById('dashboard');
+      
+      loading.style.display = 'block';
+      dashboard.style.display = 'none';
+
+      try {
+        const response = await fetch(`${API_BASE}/api/memory`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const data = await response.json();
+        
+        // Update stats
+        document.getElementById('stat-interactions').textContent = data.stats.total_interactions;
+        document.getElementById('stat-insights').textContent = data.stats.total_insights;
+        document.getElementById('stat-topics').textContent = data.stats.topics_discussed;
+
+        // Update recent interactions
+        const interactionsList = document.getElementById('interactions-list');
+        interactionsList.innerHTML = '';
+        if (data.session_memory && data.session_memory.length > 0) {
+          data.session_memory.forEach(interaction => {
+            const item = document.createElement('div');
+            item.className = 'interaction-item';
+            item.innerHTML = `
+              <div class="interaction-question">Q: ${interaction.question || interaction.query || 'N/A'}</div>
+              <div class="interaction-answer">${(interaction.response || interaction.answer || 'N/A').substring(0, 100)}...</div>
+            `;
+            interactionsList.appendChild(item);
+          });
+        } else {
+          interactionsList.innerHTML = '<p class="interaction-answer">No recent interactions</p>';
+        }
+
+        // Update insights
+        const insightsList = document.getElementById('insights-list');
+        insightsList.innerHTML = '';
+        if (data.persistent_memory.insights && data.persistent_memory.insights.length > 0) {
+          data.persistent_memory.insights.forEach(insight => {
+            const item = document.createElement('div');
+            item.className = 'insight-item';
+            item.textContent = insight;
+            insightsList.appendChild(item);
+          });
+        } else {
+          insightsList.innerHTML = '<p class="interaction-answer">No insights captured yet</p>';
+        }
+
+        // Update topics
+        const topicsList = document.getElementById('topics-list');
+        topicsList.innerHTML = '';
+        if (data.persistent_memory.topic_interests && Object.keys(data.persistent_memory.topic_interests).length > 0) {
+          Object.entries(data.persistent_memory.topic_interests).forEach(([topic, count]) => {
+            const badge = document.createElement('span');
+            badge.className = 'topic-badge';
+            badge.textContent = `${topic} (${count})`;
+            topicsList.appendChild(badge);
+          });
+        } else {
+          topicsList.innerHTML = '<p class="interaction-answer">No topics tracked yet</p>';
+        }
+
+        // Update preferences
+        const preferencesList = document.getElementById('preferences-list');
+        preferencesList.innerHTML = '';
+        if (data.persistent_memory.user_preferences && Object.keys(data.persistent_memory.user_preferences).length > 0) {
+          Object.entries(data.persistent_memory.user_preferences).forEach(([key, value]) => {
+            const stat = document.createElement('div');
+            stat.className = 'stat-box';
+            stat.innerHTML = `
+              <span class="stat-label">${key}:</span>
+              <span class="stat-value">${value}</span>
+            `;
+            preferencesList.appendChild(stat);
+          });
+        } else {
+          preferencesList.innerHTML = '<p class="interaction-answer">No preferences set</p>';
+        }
+
+        loading.style.display = 'none';
+        dashboard.style.display = 'grid';
+
+      } catch (error) {
+        loading.innerHTML = `<p style="color: var(--error);">Error loading memory: ${error.message}</p>`;
+      }
+    }
+
+    // Load data on page load
+    loadMemoryData();
+
+    // Auto-refresh every 10 seconds
+    setInterval(loadMemoryData, 10000);
+  </script>
+</body>
+</html>

@@ -1,11 +1,14 @@
 """HTTP API server for the Feynman Digital Twin."""
 from pathlib import Path
 import sys
+import logging
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 # Ensure sibling modules (main.py/config.py/etc.) resolve regardless of
 # whether uvicorn is launched from project root or from src/.
@@ -56,6 +59,51 @@ def health() -> dict:
     if twin is None:
         raise HTTPException(status_code=503, detail="Service not initialized")
     return {"status": "ok", "rag_ready": twin.rag_ready}
+
+
+@app.get("/api/memory")
+def get_memory() -> dict:
+    """Get current memory state for visualization"""
+    if twin is None:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+    
+    try:
+        # Get session memory - use conversation_history directly
+        session_data = twin.memory_manager.session_memory.conversation_history[-10:] if twin.memory_manager.session_memory.conversation_history else []
+        
+        # Format session data for frontend
+        formatted_session = []
+        for msg in session_data:
+            if msg.get("role") == "user":
+                # Store the question
+                question = msg.get("content", "")
+                formatted_session.append({"question": question, "answer": ""})
+            elif msg.get("role") == "assistant" and formatted_session:
+                # Add the answer to the last question
+                formatted_session[-1]["answer"] = msg.get("content", "")[:200]
+        
+        # Get persistent memory attributes
+        persistent_data = {
+            "user_preferences": getattr(twin.memory_manager.persistent_memory, 'user_preferences', {}),
+            "insights": getattr(twin.memory_manager.persistent_memory, 'insights', [])[-10:],
+            "topic_interests": getattr(twin.memory_manager.persistent_memory, 'topic_interests', {}),
+        }
+        
+        # Get memory stats
+        stats = {
+            "total_interactions": len(twin.memory_manager.session_memory.conversation_history) // 2,  # Q&A pairs
+            "total_insights": len(getattr(twin.memory_manager.persistent_memory, 'insights', [])),
+            "topics_discussed": len(twin.memory_manager.session_memory.topics_discussed),
+        }
+        
+        return {
+            "session_memory": formatted_session,
+            "persistent_memory": persistent_data,
+            "stats": stats,
+        }
+    except Exception as e:
+        logger.error(f"Memory retrieval error: {e}")
+        raise HTTPException(status_code=500, detail=f"Error retrieving memory: {str(e)}")
 
 
 @app.post("/api/chat", response_model=ChatResponse)

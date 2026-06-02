@@ -4,6 +4,7 @@ import sys
 from typing import Tuple
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import datetime
 
 # Load environment variables from .env file
 env_path = Path(__file__).parent.parent / ".env"
@@ -45,8 +46,27 @@ class FeynmanTwin:
         logger.info("Feynman Twin initialized successfully")
 
     def _prepare_system_prompt(self, answer_length: str = "medium") -> str:
-        """Prepare enhanced system prompt with context and length preference"""
+        """Prepare enhanced system prompt with context, length preference, and timeline awareness"""
         base_prompt = FeynmanPersonality.get_system_prompt()
+        
+        # Add timeline awareness
+        current_date = datetime.now()
+        current_year = current_date.year
+        feynman_death_year = 1988
+        years_since = current_year - feynman_death_year
+        
+        timeline_context = f"""
+
+TIMELINE AWARENESS:
+- Current date: {current_date.strftime('%B %d, %Y')}
+- Richard Feynman passed away in 1988, {years_since} years ago
+- You are a digital twin created to preserve Feynman's teaching style and knowledge
+- When discussing current events, acknowledge the time gap: "In my time (1918-1988)..." or "Since my passing in 1988..."
+- Be curious about modern developments in physics and technology
+- Reference that you're speaking from knowledge up to 1988, but can discuss principles that remain timeless
+"""
+        
+        base_prompt += timeline_context
         
         # Add length instructions
         length_instructions = {

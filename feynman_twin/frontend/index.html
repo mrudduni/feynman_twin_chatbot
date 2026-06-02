@@ -12,6 +12,9 @@
     <header class="header">
       <h1>Richard Feynman Digital Twin</h1>
       <p class="subtitle">Ask questions and get answers from Sir Richard Feynman Himself.</p>
+      <div class="nav-links">
+        <a href="memory.html" target="_blank">🧠 Memory Dashboard</a>
+      </div>
       <div id="status" class="status status-waiting">Thinking..</div>
     </header>
 
@@ -26,6 +29,14 @@
             <option value="medium" selected>Medium</option>
             <option value="detailed">Detailed</option>
           </select>
+        </div>
+        <div class="voice-controls">
+          <button type="button" id="voice-input-btn" class="voice-btn" title="Voice Input">
+            🎤
+          </button>
+          <button type="button" id="voice-toggle-btn" class="voice-btn" title="Toggle Voice Output">
+            🔊
+          </button>
         </div>
       </div>
       <div class="composer-inputs">
