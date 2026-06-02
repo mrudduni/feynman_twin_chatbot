@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feynman Twin</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="galaxy-overlay"></div>
+  <main class="app">
+    <header class="header">
+      <h1>Richard Feynman Digital Twin</h1>
+      <p class="subtitle">Ask questions and get answers from Sir Richard Feynman Himself.</p>
+      <div id="status" class="status status-waiting">Thinking..</div>
+    </header>
+
+    <section id="chat" class="chat"></section>
+
+    <form id="chat-form" class="composer">
+      <textarea
+        id="question-input"
+        name="question"
+        placeholder="Ask about physics, science, curiosity, or learning..."
+        rows="3"
+        required
+      ></textarea>
+      <button id="send-btn" type="submit">Send</button>
+    </form>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
