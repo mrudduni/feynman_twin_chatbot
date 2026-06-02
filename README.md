@@ -1,4 +1,4 @@
-# 🎓 Richard Feynman Digital Twin
+# Richard Feynman Digital Twin
 
 An AI-powered digital twin of Richard Feynman that combines RAG (Retrieval-Augmented Generation) with personality encoding to answer questions in Feynman's characteristic teaching style.
 
@@ -6,17 +6,17 @@ An AI-powered digital twin of Richard Feynman that combines RAG (Retrieval-Augme
 ![Python](https://img.shields.io/badge/python-3.8+-blue)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-## ✨ Features
+## Features
 
-- 🧠 **RAG System**: Retrieves relevant content from Feynman's lectures and works
-- 💬 **Dual Memory**: Session memory + persistent memory across conversations
-- 🎭 **Personality Encoding**: Responds in Feynman's unique teaching style
-- 🌐 **Web Interface**: Modern, intuitive chat interface
-- 🔌 **REST API**: FastAPI backend for easy integration
-- 📊 **Metadata Tracking**: Personality scores and retrieval metrics
-- 🎯 **Socratic Method**: Guides learning through questions
+- **RAG System**: Retrieves relevant content from Feynman's lectures and works
+- **Dual Memory**: Session memory + persistent memory across conversations
+- **Personality Encoding**: Responds in Feynman's unique teaching style
+- **Web Interface**: Modern, intuitive chat interface
+- **REST API**: FastAPI backend for easy integration
+- **Metadata Tracking**: Personality scores and retrieval metrics
+- **Socratic Method**: Guides learning through questions
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -49,7 +49,7 @@ An AI-powered digital twin of Richard Feynman that combines RAG (Retrieval-Augme
    python main.py --setup
    ```
 
-## 🎮 Usage
+## Usage
 
 ### Web Interface (Recommended)
 
@@ -112,7 +112,7 @@ print(f"Personality score: {metadata['personality_score']}")
 print(f"Retrieved docs: {metadata['retrieved_docs']}")
 ```
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 feynman_twin/
@@ -134,7 +134,7 @@ feynman_twin/
 └── .env                     # API keys (create this)
 ```
 
-## 🔌 API Endpoints
+## API Endpoints
 
 ### Health Check
 ```bash
@@ -169,7 +169,7 @@ Response:
 }
 ```
 
-## 🎯 Example Questions
+## Example Questions
 
 - "What is the Feynman Technique?"
 - "Explain quantum electrodynamics"
@@ -177,7 +177,7 @@ Response:
 - "What is your view on curiosity?"
 - "Explain the double-slit experiment"
 
-## 📊 System Specifications
+## System Specifications
 
 | Aspect | Details |
 |--------|---------|
@@ -189,7 +189,7 @@ Response:
 | **Query Speed** | 1-5 seconds (after initial setup) |
 | **Cost** | <$0.01 per conversation |
 
-## 🛠️ Configuration
+## Configuration
 
 Edit `feynman_twin/src/config.py` to customize:
 
@@ -199,14 +199,14 @@ Edit `feynman_twin/src/config.py` to customize:
 - Memory settings
 - API timeouts
 
-## 🔒 Security
+## Security
 
 - API keys stored in `.env` file (not committed to git)
 - CORS configured for local development
 - All data stored locally
 - No external data transmission except API calls
 
-## 📝 Documentation
+## Documentation
 
 Comprehensive documentation available in `feynman_twin/`:
 - `START_HERE.md` - Overview and quick start
@@ -216,7 +216,7 @@ Comprehensive documentation available in `feynman_twin/`:
 - `TROUBLESHOOTING.md` - Common issues and solutions
 - `QUICK_REFERENCE.md` - Command reference
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Backend shows "Module not found"
 Ensure you're using the virtual environment:
@@ -235,27 +235,7 @@ Normal - the system builds the RAG index on first query. Subsequent queries are 
 ### API key issues
 See `feynman_twin/SETUP_API_KEY.md` for detailed instructions.
 
-## 🤝 Contributing
-
-Contributions welcome! Areas for improvement:
-- Additional source documents
-- Enhanced personality traits
-- Web interface improvements
-- Multi-modal support (images, diagrams)
-- Voice interface
-
-## 📄 License
-
-MIT License - See LICENSE file for details
-
-## 🙏 Acknowledgments
-
-- Richard Feynman's lectures and writings
-- Google Gemini API
-- ChromaDB for vector storage
-- FastAPI framework
-
-## 📞 Support
+## Support
 
 For issues and questions:
 1. Check `TROUBLESHOOTING.md`
