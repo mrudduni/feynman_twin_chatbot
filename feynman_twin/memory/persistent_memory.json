@@ -2,9 +2,28 @@
   "created_at": "2026-06-02T12:38:55.406464",
   "user_profile": {},
   "learned_facts": [],
-  "frequently_discussed_topics": [],
+  "frequently_discussed_topics": [
+    {
+      "topic": "physics",
+      "count": 3,
+      "first_discussed": "2026-06-02T18:04:49.776588",
+      "last_discussed": "2026-06-02T18:11:15.456592"
+    },
+    {
+      "topic": "quantum",
+      "count": 2,
+      "first_discussed": "2026-06-02T18:04:49.777589",
+      "last_discussed": "2026-06-02T18:06:05.716836"
+    },
+    {
+      "topic": "science",
+      "count": 1,
+      "first_discussed": "2026-06-02T18:07:41.205639",
+      "last_discussed": "2026-06-02T18:07:41.205639"
+    }
+  ],
   "user_preferences": {},
-  "interaction_count": 14,
+  "interaction_count": 30,
   "key_insights": [
     {
       "insight": "Discussion about: test...",
@@ -25,6 +44,22 @@
     {
       "insight": "Discussion about: What is the Feynman Technique?...",
       "timestamp": "2026-06-02T16:42:08.193844"
+    },
+    {
+      "insight": "Discussion about: In your talk 'There's Plenty of Room at the Bottom...",
+      "timestamp": "2026-06-02T18:07:41.209153"
+    },
+    {
+      "insight": "Discussion about: Can you explain how your work with Murray Gell-Man...",
+      "timestamp": "2026-06-02T18:07:49.896681"
+    },
+    {
+      "insight": "Discussion about: Hey Rich, can you write a quick Python script usin...",
+      "timestamp": "2026-06-02T18:08:18.481037"
+    },
+    {
+      "insight": "Discussion about: Based on what I just told you I was working on, ho...",
+      "timestamp": "2026-06-02T18:17:38.964749"
     }
   ]
 }

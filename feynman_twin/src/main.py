@@ -44,9 +44,18 @@ class FeynmanTwin:
 
         logger.info("Feynman Twin initialized successfully")
 
-    def _prepare_system_prompt(self) -> str:
-        """Prepare enhanced system prompt with context"""
+    def _prepare_system_prompt(self, answer_length: str = "medium") -> str:
+        """Prepare enhanced system prompt with context and length preference"""
         base_prompt = FeynmanPersonality.get_system_prompt()
+        
+        # Add length instructions
+        length_instructions = {
+            "brief": "\n\nIMPORTANT: Keep your response concise and to the point (2-3 paragraphs maximum). Focus on the core concept without extensive examples.",
+            "medium": "\n\nIMPORTANT: Provide a balanced explanation with some examples (3-5 paragraphs). Make it clear but thorough.",
+            "detailed": "\n\nIMPORTANT: Provide a comprehensive, in-depth explanation with multiple examples and analogies (5-8 paragraphs or more). Explore the concept deeply and thoroughly."
+        }
+        
+        base_prompt += length_instructions.get(answer_length, length_instructions["medium"])
 
         # Add memory context if available
         memory_context = self.memory_manager.get_context_for_query()
@@ -55,14 +64,18 @@ class FeynmanTwin:
 
         return base_prompt
 
-    def answer_question(self, question: str) -> Tuple[str, dict]:
+    def answer_question(self, question: str, answer_length: str = "medium") -> Tuple[str, dict]:
         """
         Answer a question as Feynman would.
+        
+        Args:
+            question: The question to answer
+            answer_length: Length of answer - "brief", "medium", or "detailed"
 
         Returns:
             Tuple of (response_text, metadata)
         """
-        logger.info(f"Processing question: {question}")
+        logger.info(f"Processing question: {question} (length: {answer_length})")
 
         metadata = {
             "question": question,
@@ -77,13 +90,13 @@ class FeynmanTwin:
             retrieved_docs = []
 
             if self.rag_ready:
-                system_prompt = self._prepare_system_prompt()
+                system_prompt = self._prepare_system_prompt(answer_length)
                 response, retrieved_docs = self.rag_system.query(question, system_prompt)
                 metadata["retrieved_docs"] = len(retrieved_docs)
             else:
                 # Fallback if RAG not ready - use personality-based response
                 logger.warning("RAG system not ready, using personality-based response")
-                system_prompt = self._prepare_system_prompt()
+                system_prompt = self._prepare_system_prompt(answer_length)
                 response = self._generate_fallback_response(question, system_prompt)
 
             # Step 2: Enhance with teaching style

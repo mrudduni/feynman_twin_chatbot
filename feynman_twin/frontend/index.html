@@ -18,14 +18,26 @@
     <section id="chat" class="chat"></section>
 
     <form id="chat-form" class="composer">
-      <textarea
-        id="question-input"
-        name="question"
-        placeholder="Ask about physics, science, curiosity, or learning..."
-        rows="3"
-        required
-      ></textarea>
-      <button id="send-btn" type="submit">Send</button>
+      <div class="input-controls">
+        <div class="length-selector">
+          <label for="answer-length">Answer Length:</label>
+          <select id="answer-length" name="answer-length">
+            <option value="brief">Brief</option>
+            <option value="medium" selected>Medium</option>
+            <option value="detailed">Detailed</option>
+          </select>
+        </div>
+      </div>
+      <div class="composer-inputs">
+        <textarea
+          id="question-input"
+          name="question"
+          placeholder="Ask about physics, science, curiosity, or learning..."
+          rows="3"
+          required
+        ></textarea>
+        <button id="send-btn" type="submit">Send</button>
+      </div>
     </form>
   </main>
 

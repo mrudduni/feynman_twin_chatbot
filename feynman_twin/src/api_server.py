@@ -33,6 +33,7 @@ app.add_middleware(
 
 class ChatRequest(BaseModel):
     question: str = Field(min_length=1, max_length=5000)
+    answer_length: str = Field(default="medium", pattern="^(brief|medium|detailed)$")
 
 
 class ChatResponse(BaseModel):
@@ -66,6 +67,6 @@ def chat(payload: ChatRequest) -> ChatResponse:
     if not question:
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
-    answer, metadata = twin.answer_question(question)
+    answer, metadata = twin.answer_question(question, answer_length=payload.answer_length)
     return ChatResponse(answer=answer, metadata=metadata)
 

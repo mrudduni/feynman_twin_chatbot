@@ -5,6 +5,7 @@ const chatEl = document.getElementById("chat");
 const formEl = document.getElementById("chat-form");
 const inputEl = document.getElementById("question-input");
 const sendBtn = document.getElementById("send-btn");
+const lengthSelector = document.getElementById("answer-length");
 
 function setStatus(text, kind) {
   statusEl.textContent = text;
@@ -42,6 +43,7 @@ formEl.addEventListener("submit", async (event) => {
   const question = inputEl.value.trim();
   if (!question) return;
 
+  const answerLength = lengthSelector.value;
   addMessage("user", question);
   inputEl.value = "";
   sendBtn.disabled = true;
@@ -50,7 +52,7 @@ formEl.addEventListener("submit", async (event) => {
     const response = await fetch(`${API_BASE}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({ question, answer_length: answerLength }),
     });
     const payload = await response.json();
     if (!response.ok) {

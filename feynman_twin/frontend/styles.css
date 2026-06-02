@@ -124,6 +124,45 @@ body {
 
 .composer {
   margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.input-controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0.3rem 0;
+}
+
+.length-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.length-selector label {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.length-selector select {
+  border: 1px solid rgba(153, 166, 255, 0.4);
+  border-radius: 8px;
+  background: rgba(9, 11, 29, 0.88);
+  color: var(--text);
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.length-selector select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.composer-inputs {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 0.7rem;
