@@ -162,7 +162,7 @@ PDF Documents (265 pages)
 │  │  Web Browser (Port 5173)                               │  │
 │  │  • Chat Interface (index.html)                         │  │
 │  │  • Memory Dashboard (memory.html)                      │  │
-│  │  • Voice Controls (🎤 🔊)                              │  │
+│  │  • Voice Controls (🔊)                                │  │
 │  │  • Answer Length Selector                              │  │
 │  └───────────────────┬────────────────────────────────────┘  │
 └────────────────────────┼───────────────────────────────────────┘
@@ -408,7 +408,7 @@ Response:
 
 | Aspect | Details |
 |--------|---------|
-| **AI Model** | Google Gemini 2.0 Flash (+ 1.5 Pro fallback) |
+| **AI Model** | Google Gemini 2.5 Flash (+ 1.5 fallback) |
 | **Vector DB** | ChromaDB with embeddings |
 | **Documents** | ~2,657 chunks from Feynman's works |
 | **Memory** | ~500MB (embeddings + data) |
