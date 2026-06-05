@@ -5,9 +5,10 @@ A sophisticated AI system that recreates Richard Feynman's unique teaching style
 ## Features
 
 **RAG-Powered Knowledge Base**
-- Retrieval-Augmented Generation using ChromaDB for semantic search
+- Retrieval-Augmented Generation using ChromaDB 1.5.9 for semantic search
 - Automatically collects materials from textbooks and curated sources
 - Maintains Feynman's original ideas and perspectives
+- Local embeddings using sentence-transformers (no API quota limits)
 
 **Dual Memory Systems**
 - **Session Memory**: Tracks conversation history within a session
@@ -29,6 +30,15 @@ A sophisticated AI system that recreates Richard Feynman's unique teaching style
 - Primary: Gemini 2.5 Flash (faster, efficient)
 - Fallback: Gemini 1.5 Flash (for complex queries)
 - Automatic failover if primary is unavailable
+
+**New in v2.1**
+- Fixed "Retrieved docs: 0" display bug (ChromaDB upgrade)
+- Enhanced query classification for better RAG triggering
+- Comprehensive logging system
+- Voice interaction with speech recognition/synthesis
+- Memory visualization dashboard
+- Answer length control (brief/medium/detailed)
+- Timeline awareness (acknowledges Feynman's era)
 
 ## Project Structure
 
@@ -353,6 +363,26 @@ def make_socratic(response: str) -> str:
 
 ## Troubleshooting
 
+### "Retrieved docs: 0" Issue (FIXED in v2.1)
+**Symptom**: Frontend shows "Retrieved docs: 0" even when asking physics questions  
+**Cause**: ChromaDB version 0.4.24 had schema incompatibility  
+**Solution**: 
+```bash
+# 1. Stop backend server
+# 2. Delete corrupted database
+Remove-Item -Recurse -Force feynman_twin/chroma_db
+
+# 3. Upgrade ChromaDB
+.virtual/Scripts/pip.exe install --upgrade chromadb
+
+# 4. Rebuild embeddings
+cd src
+python main.py --setup
+
+# 5. Restart servers
+```
+See `../BUG_FIX_REPORT.md` for detailed information.
+
 ### "GEMINI_API_KEY not set"
 - Copy `.env.template` to `.env`
 - Add your key from https://aistudio.google.com/app/apikeys
@@ -363,6 +393,7 @@ def make_socratic(response: str) -> str:
 ### "RAG system not ready"
 - Ensure embeddings database is built: `python main.py --setup`
 - Check `embeddings/` directory exists
+- Verify ChromaDB collection has documents: Run `test_simple_retrieval.py`
 
 ### "Port 8000 already in use"
 - Kill the process using port 8000: `netstat -ano | findstr :8000`
@@ -385,6 +416,12 @@ def make_socratic(response: str) -> str:
 ### Slow responses initially
 - First query builds embedding index, takes 30-60 seconds
 - Subsequent queries are much faster (1-5 seconds)
+
+### Voice input not working
+- Requires internet connection (uses Google's Web Speech API)
+- Modern browser needed (Chrome, Edge recommended)
+- Grant microphone permissions
+- Must use HTTPS or localhost
 
 ### Memory not persisting
 - Check `memory/` directory has write permissions
@@ -484,10 +521,28 @@ Feel free to:
 ## Support
 
 For issues or questions:
-1. Check the Troubleshooting section
-2. Review error logs in terminal output
-3. Check memory files for system state
+1. Check the Troubleshooting section above
+2. Review `../BUG_FIX_REPORT.md` for recent fixes
+3. Check error logs in terminal output
 4. Verify .env configuration
+5. Test RAG system: Run `src/test_simple_retrieval.py`
+
+## Recent Updates
+
+### v2.1 (June 2026)
+- **Fixed**: "Retrieved docs: 0" display bug
+- **Upgraded**: ChromaDB from 0.4.24 to 1.5.9
+- **Enhanced**: Query classification logic
+- **Added**: Comprehensive logging throughout agent workflow
+- **Improved**: Metadata flow from agent to frontend
+
+### v2.0 (June 2026)
+- Voice interaction (speech-to-text and text-to-speech)
+- Memory visualization dashboard
+- Timeline awareness system
+- Answer length control
+- Chat history management
+- Persistent conversations
 
 ---
 

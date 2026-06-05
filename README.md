@@ -21,20 +21,22 @@ An AI-powered digital twin of Richard Feynman that combines RAG (Retrieval-Augme
 
 ## New in v2.0
 
+### Recent Bug Fixes (v2.1)
+- **Fixed RAG Display**: Resolved "Retrieved docs: 0" issue by upgrading ChromaDB
+- **Enhanced Logging**: Added comprehensive logging throughout agent workflow
+- **Improved Query Classification**: Better detection of complex vs simple queries
+- **Metadata Flow**: Fixed metadata propagation from agent to frontend
+
 ### Chat Saving
 - **Persistent Chat History**: Saves conversations to local storage
 - **Session Management**: Load, save, and delete chat sessions
 - **Local Storage**: All data stored in browser, no server required
 
 ### Voice Interaction
-- **Voice Input**: Speech-to-text using Web Speech API
+- **Voice Input**: Speech-to-text using Web Speech API (requires internet)
 - **Voice Output**: Automatic text-to-speech for responses
 - **Toggle Controls**: Enable/disable voice features as needed
-
-### Voice Interaction
-- **Voice Input**: Speech-to-text using Web Speech API
-- **Voice Output**: Automatic text-to-speech for responses
-- **Toggle Controls**: Enable/disable voice features as needed
+- **Error Handling**: User-friendly error messages for common issues
 
 ### Memory Visualization Dashboard
 - **Statistics Display**: Total interactions, insights, topics
@@ -48,6 +50,11 @@ An AI-powered digital twin of Richard Feynman that combines RAG (Retrieval-Augme
 - **Temporal References**: Uses "In my time..." when appropriate
 - **Modern Curiosity**: Expresses interest in post-1988 developments
 - **Timeless Principles**: Distinguishes era-specific vs. universal concepts
+
+### Answer Length Control
+- **Brief**: 2-3 paragraphs, core concepts only
+- **Medium**: 3-5 paragraphs with examples (default)
+- **Detailed**: 5-8+ paragraphs with comprehensive explanations
 
 ---
 
@@ -154,6 +161,7 @@ PDF Documents (265 pages)
 |--------|-------|-------------|
 | **Total Chunks** | 2,657 | Processed document segments |
 | **Embedding Dim** | 384 | Vector dimensions |
+| **ChromaDB Version** | 1.5.9 | Vector database version |
 | **Retrieval Time** | ~120ms | Average vector search |
 | **Context Window** | 8K tokens | Maximum context size |
 | **Relevance Score** | 92% | Response accuracy |
@@ -391,7 +399,9 @@ POST /api/chat
 Content-Type: application/json
 
 {
-  "question": "Explain quantum entanglement"
+  "question": "Explain quantum entanglement",
+  "answer_length": "medium",
+  "conversation_id": null
 }
 ```
 Response:
@@ -401,7 +411,31 @@ Response:
   "metadata": {
     "retrieved_docs": 5,
     "personality_score": 0.85,
-    "processing_time": 2.3
+    "model_used": "gemini-2.5-flash"
+  },
+  "conversation_id": "conv_abc123"
+}
+```
+
+### Memory Dashboard
+```bash
+GET /api/memory
+```
+Response:
+```json
+{
+  "session_memory": [
+    {"question": "What is quantum mechanics?", "answer": "..."}
+  ],
+  "persistent_memory": {
+    "user_preferences": {},
+    "insights": ["Discussion about quantum mechanics"],
+    "topic_interests": {"physics": 5}
+  },
+  "stats": {
+    "total_interactions": 12,
+    "total_insights": 3,
+    "topics_discussed": 4
   }
 }
 ```
@@ -419,8 +453,9 @@ Response:
 | Aspect | Details |
 |--------|---------|
 | **AI Model** | Google Gemini 2.5 Flash (+ 1.5 fallback) |
-| **Vector DB** | ChromaDB with embeddings |
-| **Documents** | ~2,657 chunks from Feynman's works |
+| **Vector DB** | ChromaDB 1.5.9 with HNSW indexing |
+| **Documents** | 2,657 chunks from Feynman's works |
+| **Embedding Model** | sentence-transformers/all-MiniLM-L6-v2 (local) |
 | **Memory** | ~500MB (embeddings + data) |
 | **Setup Time** | ~10 minutes (first time) |
 | **Query Speed** | 1-5 seconds (after initial setup) |
@@ -455,6 +490,17 @@ Comprehensive documentation available in `feynman_twin/`:
 
 ## Troubleshooting
 
+### "Retrieved docs: 0" Issue (FIXED in v2.1)
+**Issue**: Frontend showed "Retrieved docs: 0" even when RAG was working.  
+**Solution**: Upgraded ChromaDB from 0.4.24 to 1.5.9. If you see this issue:
+1. Stop the backend server
+2. Delete `feynman_twin/chroma_db/` directory
+3. Run: `.virtual/Scripts/pip.exe install --upgrade chromadb`
+4. Rebuild embeddings: `python main.py --setup`
+5. Restart servers
+
+See `BUG_FIX_REPORT.md` for details.
+
 ### Backend shows "Module not found"
 Ensure you're using the virtual environment:
 ```bash
@@ -472,12 +518,37 @@ Normal - the system builds the RAG index on first query. Subsequent queries are 
 ### API key issues
 See `feynman_twin/SETUP_API_KEY.md` for detailed instructions.
 
+### Voice input not working
+Voice features require:
+- Internet connection (uses Google's Web Speech API)
+- Modern browser (Chrome, Edge recommended)
+- Microphone permissions granted
+- HTTPS or localhost (security requirement)
+
 ## Support
 
 For issues and questions:
 1. Check `TROUBLESHOOTING.md`
-2. Review API docs at http://127.0.0.1:8000/docs
-3. Open an issue on GitHub
+2. Check `BUG_FIX_REPORT.md` for recent fixes
+3. Review API docs at http://127.0.0.1:8000/docs
+4. Open an issue on GitHub
+
+## Recent Updates
+
+### v2.1 (June 2026)
+- Fixed "Retrieved docs: 0" display bug
+- Upgraded ChromaDB to 1.5.9
+- Enhanced query classification logic
+- Added comprehensive logging system
+- Improved metadata flow
+
+### v2.0 (June 2026)
+- Voice interaction (input/output)
+- Memory visualization dashboard
+- Timeline awareness system
+- Answer length control
+- Chat history management
+- Persistent conversations
 
 ---
 
