@@ -88,8 +88,8 @@ python main.py --setup
 ```
 
 This will:
-- Collect papers from arXiv about Feynman and quantum mechanics
 - Fetch Wikipedia articles about Feynman and key concepts
+- Extract textbook PDFs 
 - Create curated knowledge base from Feynman's principles
 - Build vector embeddings database with ChromaDB
 - Process everything into searchable chunks
@@ -460,17 +460,6 @@ A typical conversation costs < $0.01.
 - Personality is algorithmic, not truly conscious
 - Knowledge cutoff based on collected sources
 - Requires internet for data collection
-
-## Future Enhancements
-
-- [ ] Voice interaction support
-- [ ] Real-time arXiv paper ingestion
-- [ ] Multi-language support
-- [ ] Fine-tuned model on Feynman corpus
-- [ ] Graphical user interface
-- [ ] PDF paper parsing
-- [ ] Citation tracking
-- [ ] Collaborative learning sessions
 
 ## References
 

@@ -21,6 +21,16 @@ An AI-powered digital twin of Richard Feynman that combines RAG (Retrieval-Augme
 
 ## New in v2.0
 
+### Chat Saving
+- **Persistent Chat History**: Saves conversations to local storage
+- **Session Management**: Load, save, and delete chat sessions
+- **Local Storage**: All data stored in browser, no server required
+
+### Voice Interaction
+- **Voice Input**: Speech-to-text using Web Speech API
+- **Voice Output**: Automatic text-to-speech for responses
+- **Toggle Controls**: Enable/disable voice features as needed
+
 ### Voice Interaction
 - **Voice Input**: Speech-to-text using Web Speech API
 - **Voice Output**: Automatic text-to-speech for responses
