@@ -31,11 +31,6 @@ An AI-powered digital twin of Richard Feynman that combines RAG (Retrieval-Augme
 - **Voice Output**: Automatic text-to-speech for responses
 - **Toggle Controls**: Enable/disable voice features as needed
 
-### Voice Interaction
-- **Voice Input**: Speech-to-text using Web Speech API
-- **Voice Output**: Automatic text-to-speech for responses
-- **Toggle Controls**: Enable/disable voice features as needed
-
 ### Memory Visualization Dashboard
 - **Statistics Display**: Total interactions, insights, topics
 - **Recent History**: Last 10 Q&A exchanges
