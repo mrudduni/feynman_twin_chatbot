@@ -23,7 +23,7 @@
     }
   ],
   "user_preferences": {},
-  "interaction_count": 36,
+  "interaction_count": 41,
   "key_insights": [
     {
       "insight": "Discussion about: test...",
@@ -72,6 +72,10 @@
     {
       "insight": "Discussion about: What are some important equations in physics...",
       "timestamp": "2026-06-02T19:23:31.318495"
+    },
+    {
+      "insight": "Discussion about: What are the feynman equations?...",
+      "timestamp": "2026-06-06T00:33:24.139938"
     }
   ]
 }

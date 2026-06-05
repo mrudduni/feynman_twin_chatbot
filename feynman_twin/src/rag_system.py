@@ -38,18 +38,25 @@ class RAGSystem:
         # API key verification will be handled by LangChain wrappers
         
         # Initialize ChromaDB with new client pattern
+        # Use default settings to avoid any custom metadata conflicts
         self.client = chromadb.PersistentClient(
-            path=str(EMBEDDINGS_DB),
-            settings=Settings(anonymized_telemetry=False),
+            path=str(EMBEDDINGS_DB)
         )
         
         try:
-            self.collection = self.client.get_or_create_collection(
-                name=CHROMA_DB_NAME,
-                metadata={"hnsw:space": "cosine"},
-            )
+            # Try to get existing collection first
+            try:
+                self.collection = self.client.get_collection(name=CHROMA_DB_NAME)
+                logger.info(f"Loaded existing collection: {CHROMA_DB_NAME}")
+            except Exception:
+                # Create new collection if it doesn't exist
+                self.collection = self.client.create_collection(
+                    name=CHROMA_DB_NAME,
+                    metadata={"hnsw:space": "cosine"},
+                )
+                logger.info(f"Created new collection: {CHROMA_DB_NAME}")
         except Exception as e:
-            logger.error(f"Error creating collection: {e}")
+            logger.error(f"Error initializing collection: {e}")
             self.collection = None
 
         self.processed_docs = []

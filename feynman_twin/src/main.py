@@ -154,6 +154,7 @@ TIMELINE AWARENESS:
                 retrieved_docs = []
                 if self.rag_ready:
                     retrieved_docs = self.rag_system.retrieve(question, top_k=5)
+                    metadata["retrieved_docs"] = len(retrieved_docs)  # Update metadata
                     response = self.rag_system.generate_response(question, retrieved_docs, system_prompt)
                 else:
                     response = self.rag_system.generate_response(question, [], system_prompt)

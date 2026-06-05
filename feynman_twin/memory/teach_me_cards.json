@@ -12,19 +12,126 @@
       ],
       "source_chunks": [],
       "sm2_data": {
-        "easiness_factor": 2.5,
+        "easiness_factor": 2.6,
         "interval_days": 1,
-        "repetition": 0,
-        "next_review": "2026-06-05T19:22:44.067334",
-        "last_reviewed": null
+        "repetition": 1,
+        "next_review": "2026-06-06T23:51:44.169569",
+        "last_reviewed": "2026-06-05T23:51:44.169569"
       },
       "created_from": "c595b6b8-5fd1-48c7-a6e1-b0c2c11ef44c",
       "created_at": "2026-06-05T19:22:44.067334"
+    },
+    {
+      "id": "8e13ddd0-9bb9-49e7-952d-3838294d4830",
+      "topic": "Neural Communication",
+      "question": "Feynman described a neuron as a 'tiny, specialized messenger' that's constantly 'integrating information, deciding whether to pass on the signal or not.' He also famously said it's an 'all-or-nothing' kind of deal, like a light switch, not a dimmer. Imagine you're explaining to a curious child how a single neuron actually 'makes its decision' to send a message. Walk through the process from when it first receives information to when it fires its own signal, making sure to highlight what Feynman meant by 'all-or-nothing.'",
+      "expected_key_points": [
+        "A neuron receives multiple signals (like 'shouts') from other neurons through its dendrites.",
+        "It sums up or integrates these incoming signals; if they reach a certain strength or 'threshold,' it 'decides' to fire.",
+        "The firing is 'all-or-nothing': if the threshold is met, it sends a full-strength electrical pulse down its axon; if not, it stays quiet (no partial signals).",
+        "At the end of the axon, this electrical pulse triggers the release of chemicals across a synapse to communicate with the next neuron."
+      ],
+      "source_chunks": [],
+      "sm2_data": {
+        "easiness_factor": 2.5,
+        "interval_days": 1,
+        "repetition": 0,
+        "next_review": "2026-06-05T23:52:43.623230",
+        "last_reviewed": null
+      },
+      "created_from": "5744fb71-a391-4b5b-9ebd-1b46f4ff4b02",
+      "created_at": "2026-06-05T23:52:43.623230"
+    },
+    {
+      "id": "bd194fe1-3d39-4cbd-82c8-1236e6414851",
+      "topic": "Electrons and Quantum Mechanics",
+      "question": "Feynman spent a good chunk of time trying to explain what an electron *is*, beyond just what it *does*. He highlighted its peculiar nature, especially how our everyday analogies often break down. If you were explaining to a skeptical friend what an electron *is*, specifically focusing on its most mysterious and counter-intuitive qualities that make it different from a tiny billiard ball, how would you describe it? Try to use an analogy or your own words to capture its essence.",
+      "expected_key_points": [
+        "It's a fundamental particle, meaning it's not made of smaller parts and can't be broken down further.",
+        "It exhibits wave-particle duality, behaving sometimes like a discrete 'lump' (particle) with definite properties (charge, mass, spin) and sometimes like a 'ripple' or wave that can be in multiple places at once.",
+        "It's a quantum entity that defies our everyday intuition and classical analogies, making it inherently mysterious and not easily visualized.",
+        "It's the fundamental carrier of negative electric charge, crucial for electricity and chemistry."
+      ],
+      "source_chunks": [],
+      "sm2_data": {
+        "easiness_factor": 2.5,
+        "interval_days": 1,
+        "repetition": 0,
+        "next_review": "2026-06-06T00:08:37.013260",
+        "last_reviewed": null
+      },
+      "created_from": "41abc770-2f53-4a68-b89b-a6950bd067f7",
+      "created_at": "2026-06-06T00:08:37.013260"
+    },
+    {
+      "id": "7cc8f7a2-c490-43d7-9c8f-3063e96e7ecb",
+      "topic": "Feynman's Philosophy of Scientific Inquiry",
+      "question": "The digital shadow of Feynman in this greeting radiates a particular approach to understanding the world. If you were explaining to a curious friend what Feynman's core philosophy for tackling a scientific puzzle or exploring a new idea truly is, how would you put it in your own words? What's the most important 'buzz' he wants us to feel when we encounter the unknown?",
+      "expected_key_points": [
+        "Emphasis on boundless curiosity and asking fundamental questions ('wonder about something', 'buzzing with questions').",
+        "The importance of active exploration, experimentation, and not being afraid to 'poke at ideas'.",
+        "Focus on understanding 'how the universe works' rather than just memorizing facts or accepting explanations at face value.",
+        "Approaching learning with enthusiasm, playfulness, and a sense of discovery."
+      ],
+      "source_chunks": [],
+      "sm2_data": {
+        "easiness_factor": 2.5,
+        "interval_days": 1,
+        "repetition": 0,
+        "next_review": "2026-06-06T00:31:28.507234",
+        "last_reviewed": null
+      },
+      "created_from": "d3063933-4fb4-4eec-9d8e-2ec86eb11d01",
+      "created_at": "2026-06-06T00:31:28.507234"
+    },
+    {
+      "id": "1f597b58-d94f-4428-a282-64b1d6e5df2c",
+      "topic": "Quantum Mechanics",
+      "question": "Richard Feynman mentions that if he had to pick the closest thing to a 'Feynman equation,' it would be the Feynman Path Integral. Imagine you're trying to explain this concept to a bright high school student using a simple analogy. How would you describe what the Feynman Path Integral means for how a tiny quantum particle gets from one place to another, and how is it fundamentally different from how we usually think about travel in our everyday world?",
+      "expected_key_points": [
+        "Unlike classical physics where an object takes a single, most direct path.",
+        "In the quantum world, a particle effectively 'explores' or 'considers' every single possible path it could take to get from point A to point B.",
+        "The Path Integral is a mathematical way of summing up the 'probability amplitudes' for all these diverse paths.",
+        "The core idea is that nature explores all possibilities, with the classical, 'least action' path emerging as the most probable when averaged over all quantum possibilities."
+      ],
+      "source_chunks": [],
+      "sm2_data": {
+        "easiness_factor": 2.5,
+        "interval_days": 1,
+        "repetition": 0,
+        "next_review": "2026-06-06T00:33:24.112615",
+        "last_reviewed": null
+      },
+      "created_from": "d3063933-4fb4-4eec-9d8e-2ec86eb11d01",
+      "created_at": "2026-06-06T00:33:24.112615"
+    },
+    {
+      "id": "5586e032-00e8-4b77-b78d-025172c97485",
+      "topic": "Scientific Inquiry and Understanding",
+      "question": "Feynman's opening remarks are less about explaining a specific physics concept and more about inviting curiosity and a certain way of thinking. If you were to distill the 'Feynman spirit' of approaching a new or complex idea from these words, how would you explain it to someone who feels intimidated by science? What's the core message he's conveying about how to truly understand something, and what simple, everyday analogy could you use to illustrate this approach?",
+      "expected_key_points": [
+        "Emphasizing active curiosity and asking fundamental 'what if?' and 'why?' questions to explore ideas, rather than passively receiving information.",
+        "Encouraging direct engagement and 'poking at' concepts, much like exploring a new toy or a mysterious room, to build understanding from the ground up.",
+        "Highlighting that true understanding comes from questioning, simplifying, and re-examining, making complex topics accessible.",
+        "Conveying that science is an adventure of discovery for everyone, not just experts, and that genuine curiosity is the key to unlocking its secrets."
+      ],
+      "source_chunks": [],
+      "sm2_data": {
+        "easiness_factor": 2.5,
+        "interval_days": 1,
+        "repetition": 0,
+        "next_review": "2026-06-06T00:34:31.642241",
+        "last_reviewed": null
+      },
+      "created_from": "d1821da8-e261-49f3-96a4-690cdec473ca",
+      "created_at": "2026-06-06T00:34:31.642241"
     }
   ],
   "stats": {
-    "streak": 0,
-    "last_reviewed_date": null,
-    "review_dates": []
+    "streak": 1,
+    "last_reviewed_date": "2026-06-05T23:51:44.169569",
+    "review_dates": [
+      "2026-06-05"
+    ]
   }
 }

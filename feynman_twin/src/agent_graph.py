@@ -75,11 +75,13 @@ class FeynmanAgentGraph:
 User input: "{query}"
 
 Classify the input into one of three categories:
-- "simple": A general greeting, casual remark, follow-up conversation, or general question that doesn't need specific physics lectures/documents.
-- "complex": A physics concept, explanation, formula, or history query that benefits from specific reference materials or documents.
-- "multi_part": A complex question containing multiple separate questions or parts.
+- "simple": ONLY greetings like "hello", "hi", "goodbye", casual remarks like "thanks", or very short follow-ups like "ok". Most questions should NOT be simple.
+- "complex": ANY physics, science, math, or technical question that would benefit from reference materials. This includes questions about concepts, formulas, experiments, history, or explanations. DEFAULT to this if unsure.
+- "multi_part": A question containing multiple separate questions or parts.
 
-Response must be exactly one of: "simple", "complex", "multi_part". Do not include any other text."""
+Response must be exactly one of: "simple", "complex", "multi_part". Do not include any other text.
+
+IMPORTANT: Physics and science questions should almost always be classified as "complex" to enable document retrieval."""
         try:
             llm = ChatGoogleGenerativeAI(model=PRIMARY_MODEL, google_api_key=GEMINI_API_KEY)
             res = llm.invoke(prompt)
@@ -92,8 +94,9 @@ Response must be exactly one of: "simple", "complex", "multi_part". Do not inclu
                 query_type = "complex"
         except Exception as e:
             logger.error(f"Error classifying query: {e}")
-            query_type = "complex"
-            
+            query_type = "complex"  # Default to complex on error to enable retrieval
+        
+        logger.info(f"Query classified as: {query_type}")
         return {"query_type": query_type}
         
     def route_after_classify(self, state: FeynmanAgentState) -> str:
@@ -105,9 +108,14 @@ Response must be exactly one of: "simple", "complex", "multi_part". Do not inclu
         search_query = state.get("refined_query") or state["query"]
         attempts = state.get("retrieval_attempts", 0) + 1
         
+        logger.info(f"Retrieving documents for query: {search_query[:100]}... (attempt {attempts})")
+        
         retrieved_docs = []
         if self.rag_system and getattr(self.rag_system, "collection", None):
             retrieved_docs = self.rag_system.retrieve(search_query, top_k=5)
+            logger.info(f"Retrieved {len(retrieved_docs)} documents")
+        else:
+            logger.warning("RAG system not available or collection not initialized")
             
         return {
             "retrieved_docs": retrieved_docs,
@@ -174,6 +182,8 @@ Output only the rewritten search query. Do not include any explanations or quote
         docs = state.get("retrieved_docs", [])
         system_prompt = state.get("system_prompt", "")
         
+        logger.info(f"Generating response with {len(docs)} retrieved documents")
+        
         context = "\n\n".join([
             f"Source: {doc['metadata'].get('source', 'Unknown')}\n"
             f"Title: {doc['metadata'].get('title', 'Unknown')}\n"
@@ -207,6 +217,8 @@ Be willing to admit uncertainty and maintain his emphasis on understanding over 
         query = state["query"]
         system_prompt = state.get("system_prompt", "")
         
+        logger.info(f"Generating direct response (no retrieval) for: {query[:50]}...")
+        
         full_prompt = f"""You are Richard Feynman, a brilliant physicist and educator.
             
 {system_prompt}
@@ -222,10 +234,18 @@ Respond directly in Feynman's characteristic conversational style."""
             logger.error(f"Error in direct response node: {e}")
             response = "I encountered an error generating direct response."
             
-        return {"final_response": response}
+        # Mark that this was a direct response (no retrieval)
+        return {
+            "final_response": response,
+            "retrieved_docs": []  # Explicitly set to empty list for metadata tracking
+        }
         
     def enhance_personality_node(self, state: FeynmanAgentState) -> dict:
         response = state.get("final_response", "")
+        retrieved_count = len(state.get("retrieved_docs", []))
+        
+        logger.info(f"Enhancing personality for response. Retrieved docs count: {retrieved_count}")
+        
         enhanced = TeachingStyler.add_personal_touch(response)
         enhanced = TeachingStyler.make_socratic(enhanced)
         
@@ -234,8 +254,10 @@ Respond directly in Feynman's characteristic conversational style."""
         metadata.update({
             "personality_score": score,
             "model_used": PRIMARY_MODEL,
-            "retrieved_docs": len(state.get("retrieved_docs", []))
+            "retrieved_docs": retrieved_count
         })
+        
+        logger.info(f"Final metadata: {metadata}")
         
         return {
             "final_response": enhanced,
