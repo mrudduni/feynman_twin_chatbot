@@ -1,10 +1,19 @@
 """Main Feynman Digital Twin Agent"""
 import logging
 import sys
-from typing import Tuple
 from pathlib import Path
+# Add the current directory (src) to the system path
+sys.path.append(str(Path(__file__).parent.absolute()))
+from typing import Tuple
 from dotenv import load_dotenv
 from datetime import datetime
+
+# FastAPI imports (consolidated, no duplicates)
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+import os
 
 # Load environment variables from .env file
 env_path = Path(__file__).parent.parent / ".env"
@@ -17,9 +26,19 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 from config import DATA_MARKDOWN, GEMINI_API_KEY, PRIMARY_MODEL
-from rag_system import RAGSystem
+from rag_system import RAGSystem          # Real RAGSystem from rag_system.py (no stub override)
 from memory_system import MemoryManager
 from personality import FeynmanPersonality, TeachingStyler, PersonalityAnalyzer
+
+# --- FastAPI app (single instance) ---
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class FeynmanTwin:
@@ -48,13 +67,13 @@ class FeynmanTwin:
     def _prepare_system_prompt(self, answer_length: str = "medium") -> str:
         """Prepare enhanced system prompt with context, length preference, and timeline awareness"""
         base_prompt = FeynmanPersonality.get_system_prompt()
-        
+
         # Add timeline awareness
         current_date = datetime.now()
         current_year = current_date.year
         feynman_death_year = 1988
         years_since = current_year - feynman_death_year
-        
+
         timeline_context = f"""
 
 TIMELINE AWARENESS:
@@ -65,16 +84,16 @@ TIMELINE AWARENESS:
 - Be curious about modern developments in physics and technology
 - Reference that you're speaking from knowledge up to 1988, but can discuss principles that remain timeless
 """
-        
+
         base_prompt += timeline_context
-        
+
         # Add length instructions
         length_instructions = {
             "brief": "\n\nIMPORTANT: Keep your response concise and to the point (2-3 paragraphs maximum). Focus on the core concept without extensive examples.",
             "medium": "\n\nIMPORTANT: Provide a balanced explanation with some examples (3-5 paragraphs). Make it clear but thorough.",
             "detailed": "\n\nIMPORTANT: Provide a comprehensive, in-depth explanation with multiple examples and analogies (5-8 paragraphs or more). Explore the concept deeply and thoroughly."
         }
-        
+
         base_prompt += length_instructions.get(answer_length, length_instructions["medium"])
 
         # Add memory context if available
@@ -87,32 +106,32 @@ TIMELINE AWARENESS:
     def answer_question(self, question: str, answer_length: str = "medium", conversation_id: str = None) -> Tuple[str, dict]:
         """
         Answer a question as Feynman would, using a LangGraph reasoning agent.
-        
+
         Args:
             question: The question to answer
             answer_length: Length of answer - "brief", "medium", or "detailed"
             conversation_id: Optional ID of the conversation to load history and append to
- 
+
         Returns:
             Tuple of (response_text, metadata)
         """
         logger.info(f"Processing question: {question} (length: {answer_length}, conv_id: {conversation_id})")
- 
+
         metadata = {
             "question": question,
             "retrieved_docs": 0,
             "personality_score": 0.0,
             "model_used": PRIMARY_MODEL,
         }
- 
+
         try:
             system_prompt = self._prepare_system_prompt(answer_length)
-            
+
             # Fetch recent chat history if conversation_id provided
             chat_history = None
             if conversation_id:
                 chat_history = self.memory_manager.get_recent_messages(conversation_id)
- 
+
             # Step 1: Run LangGraph Agent
             langgraph_ok = False
             response = ""
@@ -129,7 +148,7 @@ TIMELINE AWARENESS:
                 langgraph_ok = True
             except Exception as e:
                 logger.error(f"LangGraph execution failed, using fallback: {e}")
- 
+
             if not langgraph_ok:
                 # Fallback to single-shot flow using retrieve + generate_response
                 retrieved_docs = []
@@ -138,28 +157,27 @@ TIMELINE AWARENESS:
                     response = self.rag_system.generate_response(question, retrieved_docs, system_prompt)
                 else:
                     response = self.rag_system.generate_response(question, [], system_prompt)
-                
+
                 metadata["retrieved_docs"] = len(retrieved_docs)
                 response = TeachingStyler.add_personal_touch(response)
                 response = TeachingStyler.make_socratic(response)
                 metadata["personality_score"] = PersonalityAnalyzer.score_feynman_alignment(response)
- 
+
             # Step 2: Record in memory
             self.memory_manager.record_interaction(question, response, conv_id=conversation_id)
- 
+
             # Step 3: Extract and store insights
             self._extract_insights(question, response)
- 
+
             logger.info(f"Response generated successfully")
             return response, metadata
- 
+
         except Exception as e:
             logger.error(f"Error processing question: {e}")
             return f"I encountered an unexpected error: {str(e)}", metadata
 
     def _extract_insights(self, question: str, response: str):
         """Extract and store key insights"""
-        # Simple heuristic: if response contains key concepts, store as insight
         if len(response) > 200 and "understanding" in response.lower():
             insight = f"Discussion about: {question[:50]}..."
             self.memory_manager.persistent_memory.add_insight(insight)
@@ -194,7 +212,6 @@ TIMELINE AWARENESS:
                     print(f"\nSession saved to {session_file}")
                     continue
 
-                # Process question
                 print("\nThinking...")
                 response, metadata = self.answer_question(question)
 
@@ -239,6 +256,42 @@ TIMELINE AWARENESS:
             return False
 
 
+# --- Lazy-loaded agent (initialized once on first request, not at import time) ---
+_feynman_agent = None
+
+def get_agent() -> FeynmanTwin:
+    global _feynman_agent
+    if _feynman_agent is None:
+        _feynman_agent = FeynmanTwin()
+    return _feynman_agent
+
+
+# --- API Routes ---
+@app.get("/api/teach-me/stats")
+async def get_stats():
+    """Get teach-me stats endpoint"""
+    agent = get_agent()
+    return agent.rag_system.get_stats()
+
+@app.get("/api/health")
+def check_health():
+    """Health check endpoint"""
+    agent = get_agent()
+    return {
+        "status": "ok",
+        "rag_status": agent.rag_ready,
+        "knowledge_base_stats": agent.rag_system.get_stats(),
+    }
+
+# Serve static frontend files (must be mounted AFTER all API routes)
+# main.py is at feynman_twin/src/main.py
+# frontend is at feynman_twin/frontend/
+FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
+app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="static")
+
+
+# --- CLI entry point ---
+
 def main():
     """Main entry point"""
     import argparse
@@ -246,59 +299,29 @@ def main():
     parser = argparse.ArgumentParser(
         description="Feynman Digital Twin - Chat with Richard Feynman's AI"
     )
-    parser.add_argument(
-        "--setup",
-        action="store_true",
-        help="Setup RAG system (collect data and build embeddings)",
-    )
-    parser.add_argument(
-        "--ocr-pdfs",
-        action="store_true",
-        help="OCR scanned PDFs into Markdown before setup",
-    )
-    parser.add_argument(
-        "--ocr-engine",
-        choices=["tesseract", "gemini"],
-        default="tesseract",
-        help="OCR engine to use for scanned PDFs",
-    )
-    parser.add_argument(
-        "--tesseract-cmd",
-        help="Path to tesseract.exe if it is not on PATH",
-    )
-    parser.add_argument(
-        "--ocr-force",
-        action="store_true",
-        help="Re-OCR cached PDF page batches",
-    )
-    parser.add_argument(
-        "--ocr-pages-per-request",
-        type=int,
-        default=5,
-        help="PDF pages to OCR per Gemini request",
-    )
-    parser.add_argument(
-        "--ocr-pause",
-        type=float,
-        default=13.0,
-        help="Seconds to pause between OCR requests",
-    )
-    parser.add_argument(
-        "--query",
-        type=str,
-        help="Ask a single question and exit",
-    )
-    parser.add_argument(
-        "--interactive",
-        action="store_true",
-        help="Run interactive conversation (default)",
-    )
+    parser.add_argument("--setup", action="store_true",
+        help="Setup RAG system (collect data and build embeddings)")
+    parser.add_argument("--ocr-pdfs", action="store_true",
+        help="OCR scanned PDFs into Markdown before setup")
+    parser.add_argument("--ocr-engine", choices=["tesseract", "gemini"], default="tesseract",
+        help="OCR engine to use for scanned PDFs")
+    parser.add_argument("--tesseract-cmd",
+        help="Path to tesseract.exe if it is not on PATH")
+    parser.add_argument("--ocr-force", action="store_true",
+        help="Re-OCR cached PDF page batches")
+    parser.add_argument("--ocr-pages-per-request", type=int, default=5,
+        help="PDF pages to OCR per Gemini request")
+    parser.add_argument("--ocr-pause", type=float, default=13.0,
+        help="Seconds to pause between OCR requests")
+    parser.add_argument("--query", type=str,
+        help="Ask a single question and exit")
+    parser.add_argument("--interactive", action="store_true",
+        help="Run interactive conversation (default)")
 
     args = parser.parse_args()
 
     try:
-        # Initialize Twin
-        twin = FeynmanTwin()
+        twin = get_agent()
 
         if args.setup:
             logger.info("Setting up RAG system...")
@@ -338,14 +361,12 @@ def main():
                         pages_per_request=args.ocr_pages_per_request,
                     )
 
-            # Collect data
             collector = DataCollector()
             collector.collect_all()
             collector.save_raw_data()
             processed = collector.process_documents()
             collector.save_processed_data(processed)
 
-            # Build embeddings
             if twin.setup_rag():
                 print("[OK] RAG system setup complete!")
             else:
@@ -353,14 +374,12 @@ def main():
                 sys.exit(1)
 
         elif args.query:
-            # Single query mode
             print(f"Question: {args.query}\n")
             response, metadata = twin.answer_question(args.query)
             print(f"Feynman: {response}\n")
             print(f"[Personality score: {metadata['personality_score']:.0%}]")
 
         else:
-            # Default to interactive mode
             args.interactive = True
 
         if args.interactive:

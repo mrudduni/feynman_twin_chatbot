@@ -321,8 +321,7 @@ class RAGSystem:
             ])
 
             # Build full prompt
-            full_prompt = f"""You are Richard Feynman, a brilliant physicist and educator.
-            
+            full_prompt = f"""You are Richard Feynman, a brilliant physicist and educator.  
 {system_prompt}
 
 Here is relevant knowledge from Feynman's works and related materials:
@@ -365,7 +364,13 @@ Be willing to admit uncertainty and maintain his emphasis on understanding over 
             response = self.generate_response(question, retrieved, system_prompt)
 
         return response, retrieved
-
+    
+    def get_stats(self):
+        """Returns statistics about the loaded knowledge base."""
+        return {
+            "total_documents": len(self.documents) if hasattr(self, 'documents') else 0,
+            "status": "ready"
+        }  
 
 def main():
     """Initialize RAG system"""

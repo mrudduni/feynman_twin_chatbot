@@ -2,6 +2,7 @@
 from pathlib import Path
 import sys
 import logging
+from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -23,7 +24,20 @@ env_path = Path(__file__).parent.parent / ".env"
 load_dotenv(env_path)
 
 
-app = FastAPI(title="Feynman Twin API", version="1.0.0")
+twin: FeynmanTwin | None = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize the twin once when server starts."""
+    global twin
+    twin = FeynmanTwin()
+    yield
+    # Cleanup on shutdown if needed
+    twin = None
+
+
+app = FastAPI(title="Feynman Twin API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -44,16 +58,6 @@ class ChatResponse(BaseModel):
     answer: str
     metadata: dict
     conversation_id: str
-
-
-twin: FeynmanTwin | None = None
-
-
-@app.on_event("startup")
-def startup_event() -> None:
-    """Initialize the twin once when server starts."""
-    global twin
-    twin = FeynmanTwin()
 
 
 @app.get("/api/health")

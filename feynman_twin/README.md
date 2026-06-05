@@ -27,7 +27,7 @@ A sophisticated AI system that recreates Richard Feynman's unique teaching style
 
 **Gemini Integration**
 - Primary: Gemini 2.5 Flash (faster, efficient)
-- Fallback: Gemini 1.5 Pro (for complex queries)
+- Fallback: Gemini 1.5 Flash (for complex queries)
 - Automatic failover if primary is unavailable
 
 ## Project Structure
@@ -36,17 +36,30 @@ A sophisticated AI system that recreates Richard Feynman's unique teaching style
 feynman_twin/
 ├── src/
 │   ├── main.py              # Main agent orchestrator
+│   ├── api_server.py        # FastAPI web server
 │   ├── config.py            # Configuration and paths
 │   ├── data_collector.py    # Automated data collection
 │   ├── rag_system.py        # RAG pipeline with embeddings
 │   ├── memory_system.py     # Session and persistent memory
-│   └── personality.py       # Feynman's personality encoding
+│   ├── personality.py       # Feynman's personality encoding
+│   ├── chat_history.py      # Conversation history management
+│   ├── teach_me.py          # Spaced repetition learning system
+│   └── agent_graph.py       # LangGraph reasoning agent
+├── frontend/
+│   ├── index.html           # Main web interface
+│   ├── app.js               # Frontend JavaScript
+│   ├── styles.css           # Styling
+│   ├── memory.html          # Memory dashboard
+│   └── teach_me.html        # Learning mode interface
 ├── data/
 │   ├── raw/                 # Raw collected data
-│   └── processed/           # Processed chunks for embeddings
+│   ├── processed/           # Processed chunks for embeddings
+│   └── markdown/            # OCR-converted PDFs
 ├── embeddings/              # ChromaDB vector database
 ├── memory/                  # Memory files and conversation history
 ├── requirements.txt         # Python dependencies
+├── run_web.bat              # Windows script to start web application
+├── .env                     # Environment variables (API keys)
 ├── .env.template           # Environment variables template
 └── README.md               # This file
 ```
@@ -95,9 +108,50 @@ Or with a single query:
 python main.py --query "Explain quantum mechanics in simple terms"
 ```
 
+### 4. Web Interface (Recommended)
+
+The easiest way to use the Feynman Twin is through the web interface:
+
+**Windows:**
+```bash
+run_web.bat
+```
+
+**Manual Start:**
+```bash
+# Terminal 1 - Start Backend API
+cd src
+python -m uvicorn api_server:app --host 127.0.0.1 --port 8000
+
+# Terminal 2 - Start Frontend
+cd frontend
+python -m http.server 5173
+```
+
+Then open your browser to: **http://127.0.0.1:5173**
+
+The web interface includes:
+- **Chat Interface**: Real-time conversation with Feynman
+- **Conversation History**: Save and load previous conversations
+- **Memory Dashboard**: View what the system remembers about you
+- **Teach Me Mode**: Spaced repetition learning system
+- **Voice Input/Output**: Speech recognition and synthesis
+
 ## Usage Examples
 
-### Interactive Mode
+### Web Interface
+
+Open http://127.0.0.1:5173 in your browser and start chatting with Feynman. Features include:
+
+- **Real-time Chat**: Type questions and get instant responses
+- **Conversation Management**: Create, rename, and delete conversations
+- **Answer Length Control**: Choose between brief, medium, or detailed responses
+- **Voice Input**: Use speech recognition to ask questions (requires internet)
+- **Voice Output**: Listen to Feynman's responses
+- **Memory Dashboard**: View session and persistent memory
+- **Teach Me Mode**: Practice concepts with spaced repetition
+
+### Interactive Mode (CLI)
 
 ```
 You: What is the Feynman Technique?
@@ -131,6 +185,29 @@ response, metadata = twin.answer_question(
 print(response)
 print(f"Personality score: {metadata['personality_score']:.0%}")
 ```
+
+### API Endpoints
+
+The web interface uses the following API endpoints (running on port 8000):
+
+**Chat & Conversations:**
+- `POST /api/chat` - Send a question and get a response
+- `GET /api/conversations` - List all conversations
+- `POST /api/conversations` - Create a new conversation
+- `GET /api/conversations/{id}` - Get a specific conversation
+- `DELETE /api/conversations/{id}` - Delete a conversation
+- `PATCH /api/conversations/{id}` - Rename a conversation
+
+**Memory & Learning:**
+- `GET /api/memory` - Get current memory state
+- `GET /api/teach-me/stats` - Get learning statistics
+- `POST /api/teach-me/start` - Start a quiz session
+- `POST /api/teach-me/answer` - Submit a quiz answer
+- `GET /api/teach-me/cards` - Get all flashcards
+- `DELETE /api/teach-me/cards/{id}` - Delete a flashcard
+
+**System:**
+- `GET /api/health` - Health check and RAG status
 
 ## How It Works
 
@@ -286,6 +363,24 @@ def make_socratic(response: str) -> str:
 ### "RAG system not ready"
 - Ensure embeddings database is built: `python main.py --setup`
 - Check `embeddings/` directory exists
+
+### "Port 8000 already in use"
+- Kill the process using port 8000: `netstat -ano | findstr :8000`
+- Kill the PID: `taskkill /F /PID <PID>`
+- Or use a different port: `python -m uvicorn api_server:app --port 8001`
+
+### "ModuleNotFoundError: No module named 'langchain_google_genai'"
+- Install missing dependency: `pip install langchain-google-genai`
+
+### Backend won't start
+- Check that all dependencies are installed: `pip install -r requirements.txt`
+- Verify Python version is 3.8+
+- Check the .env file has valid API key
+
+### Frontend can't connect to backend
+- Ensure backend is running on port 8000
+- Check browser console for CORS errors
+- Verify API_BASE in frontend/app.js is correct (http://127.0.0.1:8000)
 
 ### Slow responses initially
 - First query builds embedding index, takes 30-60 seconds

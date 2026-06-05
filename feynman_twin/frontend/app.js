@@ -1,4 +1,4 @@
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "http://127.0.0.1:8000" ;
 
 // ============ DOM REFERENCES ============
 const statusEl        = document.getElementById("status");
@@ -115,11 +115,11 @@ function renderConversationList(conversations) {
     item.innerHTML = `
       <div class="conv-item-info">
         <div class="conv-title" title="${conv.title}">${conv.title || "Untitled"}</div>
-        <div class="conv-date">${formatRelativeDate(conv.last_updated)} · ${conv.message_count} msgs</div>
+        <div class="conv-date">${formatRelativeDate(conv.last_updated)} - ${conv.message_count} msgs</div>
       </div>
       <div class="conv-actions">
-        <button class="conv-action-btn rename-btn" title="Rename">✏️</button>
-        <button class="conv-action-btn delete-btn" title="Delete">🗑</button>
+        <button class="conv-action-btn rename-btn" title="Rename">rename</button>
+        <button class="conv-action-btn delete-btn" title="Delete">delete</button>
       </div>
     `;
 
@@ -381,5 +381,5 @@ if (speechSynthesis.onvoiceschanged !== undefined) {
 checkHealth();
 initSpeechRecognition();
 updateCardsDueBadge();
-// Poll badge every 60s
+// Poll badge every minute in case user keeps app open for a long time without refreshing
 setInterval(updateCardsDueBadge, 60000);
