@@ -1,82 +1,21 @@
 # Richard Feynman Digital Twin
 
-An AI-powered digital twin of Richard Feynman that combines RAG (Retrieval-Augmented Generation) with personality encoding to answer questions in Feynman's characteristic teaching style.
-
-![Status](https://img.shields.io/badge/status-production-green)
-![Python](https://img.shields.io/badge/python-3.8+-blue)
-![License](https://img.shields.io/badge/license-MIT-blue)
+A sophisticated AI system that recreates Richard Feynman's unique teaching style and deep physics knowledge. Ask questions about physics, science, learning, or any topic, and receive responses that capture Feynman's characteristic clarity, curiosity, and humor.
 
 ## Features
 
-### Core AI Capabilities
-- **RAG System**: Retrieves relevant content from 2,657 chunks of Feynman's lectures using ChromaDB 1.5.9
-- **LangGraph Agent**: Multi-step reasoning with query classification, retrieval evaluation, and response refinement
-- **Dual Memory**: Session memory (current conversation) + persistent memory (across sessions)
-- **Personality Encoding**: 87% alignment with Feynman's teaching style using personality scoring
-- **Local Embeddings**: sentence-transformers/all-MiniLM-L6-v2 (no API quota limits)
-
-### Web Interface Features
-- **Modern Chat UI**: Clean, responsive interface with galaxy background
-- **Conversation Management**: Create, save, rename, and delete conversations
-- **Sidebar Navigation**: Easy access to conversation history
-- **Real-time Status**: Backend health monitoring and connection status
-- **Mobile Responsive**: Works on desktop, tablet, and mobile devices
-
-### Voice Interaction (v2.0)
-- **Voice Input (🎤)**: 
-  - Speech-to-text using Web Speech API
-  - Visual recording indicator
-  - Requires internet connection (Google's servers)
-  - Error handling with user-friendly messages
-- **Voice Output (🔊/🔇)**:
-  - Text-to-speech for all responses
-  - Toggle on/off functionality
-  - Automatic voice selection (prefers male English voices)
-  - Adjustable rate, pitch, and volume
-
-### Memory Dashboard (v2.0)
-Access at: http://localhost:5173/memory.html
-- **Statistics Panel**: 
-  - Total interactions count
-  - Total insights captured
-  - Topics discussed
-- **Recent Interactions**: Last 10 Q&A exchanges
-- **Insights Tracking**: Key learnings and discoveries
-- **Topic Analysis**: Frequency map of discussed subjects
-- **User Preferences**: Saved learning preferences
-- **Auto-Refresh**: Updates every 10 seconds
-
-### Timeline Awareness (v2.0)
-- **Historical Context**: Acknowledges Feynman's era (1918-1988)
-- **Dynamic Date Calculation**: Automatically calculates years since 1988
-- **Contextual References**: Uses phrases like "In my time..." when appropriate
-- **Modern Curiosity**: Expresses interest in post-1988 developments
-- **Timeless Principles**: Distinguishes era-specific from universal physics concepts
-
-### Answer Length Control (v2.0)
-- **Brief** (2-3 paragraphs): Quick, focused explanations of core concepts
-- **Medium** (3-5 paragraphs): Balanced explanations with examples (default)
-- **Detailed** (5-8+ paragraphs): Comprehensive, in-depth explorations with multiple analogies
-
-### Advanced Features
-- **REST API**: FastAPI backend with full OpenAPI documentation
-- **Metadata Tracking**: 
-  - Retrieved documents count (fixed in v2.1)
-  - Personality alignment scores (0-100%)
-  - Model used (gemini-2.5-flash)
-  - Processing time metrics
-- **Socratic Method**: Asks guiding questions to deepen understanding
-- **Teaching Style Enhancement**: Adds personal touches and analogies
-- **Query Classification**: Intelligent routing between simple and complex queries
-- **Context Aggregation**: Optimal chunking and overlap for semantic coherence
+- **RAG System**: Retrieves relevant content from Feynman's lectures and works
+- **Dual Memory**: Session memory + persistent memory across conversations
+- **Personality Encoding**: Responds in Feynman's unique teaching style
+- **Web Interface**: Modern, intuitive chat interface with voice support
+- **REST API**: FastAPI backend for easy integration
+- **Metadata Tracking**: Personality scores and retrieval metrics
+- **Socratic Method**: Guides learning through questions
+- **Voice Interaction**: Speak to and hear from Feynman
+- **Memory Dashboard**: Visualize what the AI remembers
+- **Timeline Awareness**: Contextually aware of historical periods
 
 ## New in v2.0
-
-### Recent Bug Fixes (v2.1)
-- **Fixed RAG Display**: Resolved "Retrieved docs: 0" issue by upgrading ChromaDB
-- **Enhanced Logging**: Added comprehensive logging throughout agent workflow
-- **Improved Query Classification**: Better detection of complex vs simple queries
-- **Metadata Flow**: Fixed metadata propagation from agent to frontend
 
 ### Chat Saving
 - **Persistent Chat History**: Saves conversations to local storage
@@ -84,10 +23,14 @@ Access at: http://localhost:5173/memory.html
 - **Local Storage**: All data stored in browser, no server required
 
 ### Voice Interaction
-- **Voice Input**: Speech-to-text using Web Speech API (requires internet)
+- **Voice Input**: Speech-to-text using Web Speech API
 - **Voice Output**: Automatic text-to-speech for responses
 - **Toggle Controls**: Enable/disable voice features as needed
-- **Error Handling**: User-friendly error messages for common issues
+
+### Voice Interaction
+- **Voice Input**: Speech-to-text using Web Speech API
+- **Voice Output**: Automatic text-to-speech for responses
+- **Toggle Controls**: Enable/disable voice features as needed
 
 ### Memory Visualization Dashboard
 - **Statistics Display**: Total interactions, insights, topics
@@ -101,11 +44,6 @@ Access at: http://localhost:5173/memory.html
 - **Temporal References**: Uses "In my time..." when appropriate
 - **Modern Curiosity**: Expresses interest in post-1988 developments
 - **Timeless Principles**: Distinguishes era-specific vs. universal concepts
-
-### Answer Length Control
-- **Brief**: 2-3 paragraphs, core concepts only
-- **Medium**: 3-5 paragraphs with examples (default)
-- **Detailed**: 5-8+ paragraphs with comprehensive explanations
 
 ---
 
@@ -212,7 +150,6 @@ PDF Documents (265 pages)
 |--------|-------|-------------|
 | **Total Chunks** | 2,657 | Processed document segments |
 | **Embedding Dim** | 384 | Vector dimensions |
-| **ChromaDB Version** | 1.5.9 | Vector database version |
 | **Retrieval Time** | ~120ms | Average vector search |
 | **Context Window** | 8K tokens | Maximum context size |
 | **Relevance Score** | 92% | Response accuracy |
@@ -314,36 +251,26 @@ PDF Documents (265 pages)
 
 ## Quick Start
 
-### Prerequisites
+### 1. Setup
 
-- Python 3.8 or higher
-- Google Gemini API key ([Get one here](https://aistudio.google.com/app/apikeys))
+```bash
+# Navigate to the project directory
+cd feynman_twin
 
-### Installation
+# Install dependencies
+pip install -r requirements.txt
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd Richard\ Feynman
-   ```
+# Create .env file with your API key
+cp .env.template .env
+# Edit .env and add your GEMINI_API_KEY from https://aistudio.google.com/app/apikeys
+```
 
-2. **Set up environment**
-   ```bash
-   python setup.py setup
-   ```
+### 2. Initialize RAG System (Automated)
 
-3. **Configure API key**
-   
-   Create a `.env` file in the `feynman_twin/` directory:
-   ```env
-   GEMINI_API_KEY=your_api_key_here
-   ```
-
-4. **Initialize data** (first time only, takes 5-10 minutes)
-   ```bash
-   cd feynman_twin/src
-   python main.py --setup
-   ```
+```bash
+cd src
+python main.py --setup
+```
 
 ## Usage
 
@@ -366,100 +293,161 @@ PDF Documents (265 pages)
    ```
 
 2. **Open your browser**:
-   - **Chat Interface**: http://127.0.0.1:5173
-   - **Memory Dashboard**: http://127.0.0.1:5173/memory.html
-   - **API Docs**: http://127.0.0.1:8000/docs
-
-### Feature Guide
-
-#### Chat Interface
-- **Ask Questions**: Type in the text box or use voice input (🎤)
-- **Answer Length**: Select brief, medium, or detailed from dropdown
-- **Voice Output**: Toggle speaker icon (🔊/🔇) to enable/disable
-- **New Chat**: Click "New Chat" to start fresh conversation
-- **History**: Click menu icon to view/load previous conversations
-
-#### Voice Features
-**Voice Input (🎤)**:
-1. Click microphone button
-2. Grant browser permission if prompted
-3. Speak your question clearly
-4. Question appears in text box automatically
-5. Requires internet connection
-
-**Voice Output (🔊)**:
-- Automatically reads responses when enabled
-- Click speaker icon to toggle on/off
-- Uses browser's native speech synthesis
-- Prefers male English voices (mimics Feynman)
-
-#### Memory Dashboard
-Navigate to: http://127.0.0.1:5173/memory.html
-- View statistics (total interactions, insights, topics)
-- See last 10 conversations
-- Track key insights discovered
-- Monitor topic frequency
-- Auto-refreshes every 10 seconds
-- Click "Back to Chat" to return
-
-#### Answer Length Selection
-Choose response detail level:
-- **Brief**: Quick explanation, 2-3 paragraphs
-- **Medium**: Balanced with examples, 3-5 paragraphs (default)
-- **Detailed**: Comprehensive exploration, 5-8+ paragraphs
-
-#### Conversation Management
-- **Create**: Click "New Chat" button
-- **Save**: Conversations auto-save after each message
-- **Load**: Click any conversation in sidebar
-- **Rename**: Click "rename" button next to conversation
-- **Delete**: Click "delete" button next to conversation
+   - Frontend: http://127.0.0.1:5173
+   - API Docs: http://127.0.0.1:8000/docs
 
 ### Command Line Interface
 
 **Interactive chat mode**:
 ```bash
-cd feynman_twin/src
 python main.py
 ```
 
-**Single question**:
+Or with a single query:
+
 ```bash
-cd feynman_twin/src
-python main.py --query "Explain quantum mechanics"
+python main.py --query "Explain quantum mechanics in simple terms"
 ```
 
-**View memory**:
+### 4. Web Interface (Recommended)
+
+The easiest way to use the Feynman Twin is through the web interface:
+
+**Windows:**
 ```bash
-# In interactive mode, type:
-memory
+run_web.bat
 ```
 
-**Save conversation**:
+**Manual Start:**
 ```bash
-# In interactive mode, type:
-save
+# Terminal 1 - Start Backend API
+cd src
+python -m uvicorn api_server:app --host 127.0.0.1 --port 8000
+
+# Terminal 2 - Start Frontend
+cd frontend
+python -m http.server 5173
 ```
 
-### Python Library
+Then open your browser to: **http://127.0.0.1:5173**
+
+The web interface includes:
+- **Chat Interface**: Real-time conversation with Feynman
+  - Galaxy background for immersive experience
+  - Clean, modern UI with responsive design
+  - Real-time backend status monitoring
+  - Automatic conversation saving
+- **Conversation History**: Save and load previous conversations
+  - Create unlimited conversations
+  - Auto-title based on first question
+  - Rename and organize conversations
+  - Delete unwanted conversations
+  - Timestamp and message count display
+- **Memory Dashboard**: View what the system remembers about you
+  - Access at: http://127.0.0.1:5173/memory.html
+  - Statistics: interactions, insights, topics
+  - Recent history: last 10 Q&A pairs
+  - Insights tracking and topic analysis
+  - Auto-refresh every 10 seconds
+- **Teach Me Mode**: Spaced repetition learning system
+  - Flashcard generation from conversations
+  - Quiz sessions with scoring
+  - Progress tracking and statistics
+- **Voice Input/Output**: Speech recognition and synthesis
+  - 🎤 Voice input with visual recording indicator
+  - 🔊/🔇 Voice output toggle
+  - Requires internet connection
+  - Error handling with user-friendly messages
+- **Answer Length Control**: Choose response detail
+  - Brief (2-3 paragraphs)
+  - Medium (3-5 paragraphs) - default
+  - Detailed (5-8+ paragraphs)
+
+## Usage Examples
+
+### Web Interface
+
+Open http://127.0.0.1:5173 in your browser and start chatting with Feynman.
+
+**Main Features:**
+
+1. **Chat**: 
+   - Type questions or use 🎤 voice input
+   - Select answer length (brief/medium/detailed)
+   - Toggle 🔊 voice output to hear responses
+   - Conversations auto-save
+
+2. **Sidebar Menu**:
+   - Click ☰ to open conversation list
+   - Create new chats with "New Chat" button
+   - Click any conversation to load it
+   - Rename or delete conversations
+
+3. **Memory Dashboard**:
+   - Navigate to http://127.0.0.1:5173/memory.html
+   - View statistics, insights, and topics
+   - Auto-refreshes every 10 seconds
+   - Click "Back to Chat" to return
+
+4. **Voice Features**:
+   - **Voice Input**: Click 🎤, speak question, auto-transcribed
+   - **Voice Output**: Click 🔊 to toggle speech synthesis
+   - Both require internet connection
+
+5. **Answer Length**:
+   - **Brief**: Quick, focused (2-3 paragraphs)
+   - **Medium**: Balanced (3-5 paragraphs) - default
+   - **Detailed**: Comprehensive (5-8+ paragraphs)
+
+**Example Workflow:**
+```
+1. Open http://127.0.0.1:5173
+2. Select "Medium" answer length
+3. Enable 🔊 voice output
+4. Type or speak: "Explain quantum entanglement"
+5. Read response and hear it spoken
+6. Check metadata: "Retrieved docs: 5 | Personality: 85%"
+7. Conversation auto-saved in sidebar
+```
+
+- **Real-time Chat**: Type questions and get instant responses
+- **Conversation Management**: Create, rename, and delete conversations
+- **Answer Length Control**: Choose between brief, medium, or detailed responses
+- **Voice Input**: Use speech recognition to ask questions (requires internet)
+- **Voice Output**: Listen to Feynman's responses
+- **Memory Dashboard**: View session and persistent memory
+- **Teach Me Mode**: Practice concepts with spaced repetition
+
+### Interactive Mode (CLI)
+
+```
+You: What is the Feynman Technique?
+
+Feynman: Well, that's the method I developed for really understanding something deeply. It's quite simple, actually...
+[Personality alignment: 94%]
+[Retrieved 5 relevant documents]
+```
+
+### Special Commands
+
+In interactive mode:
+
+- `quit` - Exit and save session
+- `memory` - See what I remember about you
+- `save` - Manually save current session
+
+### Programmatic Usage
 
 ```python
 from main import FeynmanTwin
 
 # Initialize
 twin = FeynmanTwin()
-
-# Ask with custom length
-answer, metadata = twin.answer_question(
-    question="What is the Feynman Technique?",
-    answer_length="detailed",  # brief, medium, or detailed
-    conversation_id=None  # or existing conv_id to continue
-)
+answer, metadata = twin.answer_question("What is the Feynman Technique?")
 
 print(answer)
-print(f"Personality score: {metadata['personality_score']:.0%}")
+print(f"Personality score: {metadata['personality_score']}")
 print(f"Retrieved docs: {metadata['retrieved_docs']}")
-print(f"Model used: {metadata['model_used']}")
 ```
 
 ## Architecture
@@ -504,9 +492,7 @@ POST /api/chat
 Content-Type: application/json
 
 {
-  "question": "Explain quantum entanglement",
-  "answer_length": "medium",
-  "conversation_id": null
+  "question": "Explain quantum entanglement"
 }
 ```
 Response:
@@ -516,74 +502,26 @@ Response:
   "metadata": {
     "retrieved_docs": 5,
     "personality_score": 0.85,
-    "model_used": "gemini-2.5-flash"
-  },
-  "conversation_id": "conv_abc123"
-}
-```
-
-### Memory Dashboard
-```bash
-GET /api/memory
-```
-Response:
-```json
-{
-  "session_memory": [
-    {"question": "What is quantum mechanics?", "answer": "..."}
-  ],
-  "persistent_memory": {
-    "user_preferences": {},
-    "insights": ["Discussion about quantum mechanics"],
-    "topic_interests": {"physics": 5}
-  },
-  "stats": {
-    "total_interactions": 12,
-    "total_insights": 3,
-    "topics_discussed": 4
+    "processing_time": 2.3
   }
 }
 ```
 
 ## Example Questions
 
-Try these questions to explore different features:
-
-### Physics & Science
-- "Explain the double-slit experiment and wave-particle duality"
-- "What are Feynman diagrams and why are they useful?"
-- "How does quantum entanglement work?"
-- "Explain the path integral formulation"
-- "What is quantum electrodynamics?"
-
-### Teaching & Learning
-- "What is the Feynman Technique for learning?"
-- "How should I approach learning physics?"
-- "What's your view on curiosity and asking questions?"
-- "How do you make complex topics simple?"
-
-### Timeline Awareness (Tests historical context)
-- "What do you think about modern quantum computers?" (will acknowledge post-1988)
-- "Tell me about physics in your time" (will reference 1918-1988)
-- "What would you think about recent discoveries in physics?"
-
-### Answer Length Testing
-- Set to **Brief**: "What is quantum mechanics?" (2-3 paragraphs)
-- Set to **Medium**: "Explain quantum mechanics" (3-5 paragraphs)
-- Set to **Detailed**: "Explain quantum mechanics in depth" (5-8+ paragraphs)
-
-### Voice Features
-- Use 🎤 to ask: "Explain why the sky is blue"
-- Enable 🔊 to hear the response read aloud
+- "What is the Feynman Technique?"
+- "Explain quantum electrodynamics"
+- "How do you approach teaching?"
+- "What is your view on curiosity?"
+- "Explain the double-slit experiment"
 
 ## System Specifications
 
 | Aspect | Details |
 |--------|---------|
 | **AI Model** | Google Gemini 2.5 Flash (+ 1.5 fallback) |
-| **Vector DB** | ChromaDB 1.5.9 with HNSW indexing |
-| **Documents** | 2,657 chunks from Feynman's works |
-| **Embedding Model** | sentence-transformers/all-MiniLM-L6-v2 (local) |
+| **Vector DB** | ChromaDB with embeddings |
+| **Documents** | ~2,657 chunks from Feynman's works |
 | **Memory** | ~500MB (embeddings + data) |
 | **Setup Time** | ~10 minutes (first time) |
 | **Query Speed** | 1-5 seconds (after initial setup) |
@@ -629,11 +567,42 @@ Comprehensive documentation available in `feynman_twin/`:
 
 See `BUG_FIX_REPORT.md` for details.
 
-### Backend shows "Module not found"
-Ensure you're using the virtual environment:
+### "Retrieved docs: 0" Issue (FIXED in v2.1)
+**Symptom**: Frontend shows "Retrieved docs: 0" even when asking physics questions  
+**Cause**: ChromaDB version 0.4.24 had schema incompatibility  
+**Solution**: 
 ```bash
-..\..\virtual\Scripts\python.exe -m uvicorn api_server:app --host 127.0.0.1 --port 8000
+# 1. Stop backend server
+# 2. Delete corrupted database
+Remove-Item -Recurse -Force feynman_twin/chroma_db
+
+# 3. Upgrade ChromaDB
+.virtual/Scripts/pip.exe install --upgrade chromadb
+
+# 4. Rebuild embeddings
+cd src
+python main.py --setup
+
+# 5. Restart servers
 ```
+See `../BUG_FIX_REPORT.md` for detailed information.
+
+### "GEMINI_API_KEY not set"
+- Copy `.env.template` to `.env`
+- Add your key from https://aistudio.google.com/app/apikeys
+
+### "No processed data found"
+- Run `python main.py --setup` to collect and process data
+
+### "RAG system not ready"
+- Ensure embeddings database is built: `python main.py --setup`
+- Check `embeddings/` directory exists
+- Verify ChromaDB collection has documents: Run `test_simple_retrieval.py`
+
+### "Port 8000 already in use"
+- Kill the process using port 8000: `netstat -ano | findstr :8000`
+- Kill the PID: `taskkill /F /PID <PID>`
+- Or use a different port: `python -m uvicorn api_server:app --port 8001`
 
 ### Frontend shows "Backend unreachable"
 1. Check backend is running on port 8000
@@ -646,37 +615,12 @@ Normal - the system builds the RAG index on first query. Subsequent queries are 
 ### API key issues
 See `feynman_twin/SETUP_API_KEY.md` for detailed instructions.
 
-### Voice input not working
-Voice features require:
-- Internet connection (uses Google's Web Speech API)
-- Modern browser (Chrome, Edge recommended)
-- Microphone permissions granted
-- HTTPS or localhost (security requirement)
-
 ## Support
 
 For issues and questions:
 1. Check `TROUBLESHOOTING.md`
-2. Check `BUG_FIX_REPORT.md` for recent fixes
-3. Review API docs at http://127.0.0.1:8000/docs
-4. Open an issue on GitHub
-
-## Recent Updates
-
-### v2.1 (June 2026)
-- Fixed "Retrieved docs: 0" display bug
-- Upgraded ChromaDB to 1.5.9
-- Enhanced query classification logic
-- Added comprehensive logging system
-- Improved metadata flow
-
-### v2.0 (June 2026)
-- Voice interaction (input/output)
-- Memory visualization dashboard
-- Timeline awareness system
-- Answer length control
-- Chat history management
-- Persistent conversations
+2. Review API docs at http://127.0.0.1:8000/docs
+3. Open an issue on GitHub
 
 ---
 
