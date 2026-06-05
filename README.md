@@ -8,16 +8,67 @@ An AI-powered digital twin of Richard Feynman that combines RAG (Retrieval-Augme
 
 ## Features
 
-- **RAG System**: Retrieves relevant content from Feynman's lectures and works
-- **Dual Memory**: Session memory + persistent memory across conversations
-- **Personality Encoding**: Responds in Feynman's unique teaching style
-- **Web Interface**: Modern, intuitive chat interface with voice support
-- **REST API**: FastAPI backend for easy integration
-- **Metadata Tracking**: Personality scores and retrieval metrics
-- **Socratic Method**: Guides learning through questions
-- **Voice Interaction**: Speak to and hear from Feynman
-- **Memory Dashboard**: Visualize what the AI remembers
-- **Timeline Awareness**: Contextually aware of historical periods
+### Core AI Capabilities
+- **RAG System**: Retrieves relevant content from 2,657 chunks of Feynman's lectures using ChromaDB 1.5.9
+- **LangGraph Agent**: Multi-step reasoning with query classification, retrieval evaluation, and response refinement
+- **Dual Memory**: Session memory (current conversation) + persistent memory (across sessions)
+- **Personality Encoding**: 87% alignment with Feynman's teaching style using personality scoring
+- **Local Embeddings**: sentence-transformers/all-MiniLM-L6-v2 (no API quota limits)
+
+### Web Interface Features
+- **Modern Chat UI**: Clean, responsive interface with galaxy background
+- **Conversation Management**: Create, save, rename, and delete conversations
+- **Sidebar Navigation**: Easy access to conversation history
+- **Real-time Status**: Backend health monitoring and connection status
+- **Mobile Responsive**: Works on desktop, tablet, and mobile devices
+
+### Voice Interaction (v2.0)
+- **Voice Input (🎤)**: 
+  - Speech-to-text using Web Speech API
+  - Visual recording indicator
+  - Requires internet connection (Google's servers)
+  - Error handling with user-friendly messages
+- **Voice Output (🔊/🔇)**:
+  - Text-to-speech for all responses
+  - Toggle on/off functionality
+  - Automatic voice selection (prefers male English voices)
+  - Adjustable rate, pitch, and volume
+
+### Memory Dashboard (v2.0)
+Access at: http://localhost:5173/memory.html
+- **Statistics Panel**: 
+  - Total interactions count
+  - Total insights captured
+  - Topics discussed
+- **Recent Interactions**: Last 10 Q&A exchanges
+- **Insights Tracking**: Key learnings and discoveries
+- **Topic Analysis**: Frequency map of discussed subjects
+- **User Preferences**: Saved learning preferences
+- **Auto-Refresh**: Updates every 10 seconds
+
+### Timeline Awareness (v2.0)
+- **Historical Context**: Acknowledges Feynman's era (1918-1988)
+- **Dynamic Date Calculation**: Automatically calculates years since 1988
+- **Contextual References**: Uses phrases like "In my time..." when appropriate
+- **Modern Curiosity**: Expresses interest in post-1988 developments
+- **Timeless Principles**: Distinguishes era-specific from universal physics concepts
+
+### Answer Length Control (v2.0)
+- **Brief** (2-3 paragraphs): Quick, focused explanations of core concepts
+- **Medium** (3-5 paragraphs): Balanced explanations with examples (default)
+- **Detailed** (5-8+ paragraphs): Comprehensive, in-depth explorations with multiple analogies
+
+### Advanced Features
+- **REST API**: FastAPI backend with full OpenAPI documentation
+- **Metadata Tracking**: 
+  - Retrieved documents count (fixed in v2.1)
+  - Personality alignment scores (0-100%)
+  - Model used (gemini-2.5-flash)
+  - Processing time metrics
+- **Socratic Method**: Asks guiding questions to deepen understanding
+- **Teaching Style Enhancement**: Adds personal touches and analogies
+- **Query Classification**: Intelligent routing between simple and complex queries
+- **Context Aggregation**: Optimal chunking and overlap for semantic coherence
 
 ## New in v2.0
 
@@ -315,8 +366,54 @@ PDF Documents (265 pages)
    ```
 
 2. **Open your browser**:
-   - Frontend: http://127.0.0.1:5173
-   - API Docs: http://127.0.0.1:8000/docs
+   - **Chat Interface**: http://127.0.0.1:5173
+   - **Memory Dashboard**: http://127.0.0.1:5173/memory.html
+   - **API Docs**: http://127.0.0.1:8000/docs
+
+### Feature Guide
+
+#### Chat Interface
+- **Ask Questions**: Type in the text box or use voice input (🎤)
+- **Answer Length**: Select brief, medium, or detailed from dropdown
+- **Voice Output**: Toggle speaker icon (🔊/🔇) to enable/disable
+- **New Chat**: Click "New Chat" to start fresh conversation
+- **History**: Click menu icon to view/load previous conversations
+
+#### Voice Features
+**Voice Input (🎤)**:
+1. Click microphone button
+2. Grant browser permission if prompted
+3. Speak your question clearly
+4. Question appears in text box automatically
+5. Requires internet connection
+
+**Voice Output (🔊)**:
+- Automatically reads responses when enabled
+- Click speaker icon to toggle on/off
+- Uses browser's native speech synthesis
+- Prefers male English voices (mimics Feynman)
+
+#### Memory Dashboard
+Navigate to: http://127.0.0.1:5173/memory.html
+- View statistics (total interactions, insights, topics)
+- See last 10 conversations
+- Track key insights discovered
+- Monitor topic frequency
+- Auto-refreshes every 10 seconds
+- Click "Back to Chat" to return
+
+#### Answer Length Selection
+Choose response detail level:
+- **Brief**: Quick explanation, 2-3 paragraphs
+- **Medium**: Balanced with examples, 3-5 paragraphs (default)
+- **Detailed**: Comprehensive exploration, 5-8+ paragraphs
+
+#### Conversation Management
+- **Create**: Click "New Chat" button
+- **Save**: Conversations auto-save after each message
+- **Load**: Click any conversation in sidebar
+- **Rename**: Click "rename" button next to conversation
+- **Delete**: Click "delete" button next to conversation
 
 ### Command Line Interface
 
@@ -349,12 +446,20 @@ save
 ```python
 from main import FeynmanTwin
 
+# Initialize
 twin = FeynmanTwin()
-answer, metadata = twin.answer_question("What is the Feynman Technique?")
+
+# Ask with custom length
+answer, metadata = twin.answer_question(
+    question="What is the Feynman Technique?",
+    answer_length="detailed",  # brief, medium, or detailed
+    conversation_id=None  # or existing conv_id to continue
+)
 
 print(answer)
-print(f"Personality score: {metadata['personality_score']}")
+print(f"Personality score: {metadata['personality_score']:.0%}")
 print(f"Retrieved docs: {metadata['retrieved_docs']}")
+print(f"Model used: {metadata['model_used']}")
 ```
 
 ## Architecture
@@ -442,11 +547,34 @@ Response:
 
 ## Example Questions
 
-- "What is the Feynman Technique?"
-- "Explain quantum electrodynamics"
-- "How do you approach teaching?"
-- "What is your view on curiosity?"
-- "Explain the double-slit experiment"
+Try these questions to explore different features:
+
+### Physics & Science
+- "Explain the double-slit experiment and wave-particle duality"
+- "What are Feynman diagrams and why are they useful?"
+- "How does quantum entanglement work?"
+- "Explain the path integral formulation"
+- "What is quantum electrodynamics?"
+
+### Teaching & Learning
+- "What is the Feynman Technique for learning?"
+- "How should I approach learning physics?"
+- "What's your view on curiosity and asking questions?"
+- "How do you make complex topics simple?"
+
+### Timeline Awareness (Tests historical context)
+- "What do you think about modern quantum computers?" (will acknowledge post-1988)
+- "Tell me about physics in your time" (will reference 1918-1988)
+- "What would you think about recent discoveries in physics?"
+
+### Answer Length Testing
+- Set to **Brief**: "What is quantum mechanics?" (2-3 paragraphs)
+- Set to **Medium**: "Explain quantum mechanics" (3-5 paragraphs)
+- Set to **Detailed**: "Explain quantum mechanics in depth" (5-8+ paragraphs)
+
+### Voice Features
+- Use 🎤 to ask: "Explain why the sky is blue"
+- Enable 🔊 to hear the response read aloud
 
 ## System Specifications
 

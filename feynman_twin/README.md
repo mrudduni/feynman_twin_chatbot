@@ -142,16 +142,82 @@ Then open your browser to: **http://127.0.0.1:5173**
 
 The web interface includes:
 - **Chat Interface**: Real-time conversation with Feynman
+  - Galaxy background for immersive experience
+  - Clean, modern UI with responsive design
+  - Real-time backend status monitoring
+  - Automatic conversation saving
 - **Conversation History**: Save and load previous conversations
+  - Create unlimited conversations
+  - Auto-title based on first question
+  - Rename and organize conversations
+  - Delete unwanted conversations
+  - Timestamp and message count display
 - **Memory Dashboard**: View what the system remembers about you
+  - Access at: http://127.0.0.1:5173/memory.html
+  - Statistics: interactions, insights, topics
+  - Recent history: last 10 Q&A pairs
+  - Insights tracking and topic analysis
+  - Auto-refresh every 10 seconds
 - **Teach Me Mode**: Spaced repetition learning system
+  - Flashcard generation from conversations
+  - Quiz sessions with scoring
+  - Progress tracking and statistics
 - **Voice Input/Output**: Speech recognition and synthesis
+  - 🎤 Voice input with visual recording indicator
+  - 🔊/🔇 Voice output toggle
+  - Requires internet connection
+  - Error handling with user-friendly messages
+- **Answer Length Control**: Choose response detail
+  - Brief (2-3 paragraphs)
+  - Medium (3-5 paragraphs) - default
+  - Detailed (5-8+ paragraphs)
 
 ## Usage Examples
 
 ### Web Interface
 
-Open http://127.0.0.1:5173 in your browser and start chatting with Feynman. Features include:
+Open http://127.0.0.1:5173 in your browser and start chatting with Feynman.
+
+**Main Features:**
+
+1. **Chat**: 
+   - Type questions or use 🎤 voice input
+   - Select answer length (brief/medium/detailed)
+   - Toggle 🔊 voice output to hear responses
+   - Conversations auto-save
+
+2. **Sidebar Menu**:
+   - Click ☰ to open conversation list
+   - Create new chats with "New Chat" button
+   - Click any conversation to load it
+   - Rename or delete conversations
+
+3. **Memory Dashboard**:
+   - Navigate to http://127.0.0.1:5173/memory.html
+   - View statistics, insights, and topics
+   - Auto-refreshes every 10 seconds
+   - Click "Back to Chat" to return
+
+4. **Voice Features**:
+   - **Voice Input**: Click 🎤, speak question, auto-transcribed
+   - **Voice Output**: Click 🔊 to toggle speech synthesis
+   - Both require internet connection
+
+5. **Answer Length**:
+   - **Brief**: Quick, focused (2-3 paragraphs)
+   - **Medium**: Balanced (3-5 paragraphs) - default
+   - **Detailed**: Comprehensive (5-8+ paragraphs)
+
+**Example Workflow:**
+```
+1. Open http://127.0.0.1:5173
+2. Select "Medium" answer length
+3. Enable 🔊 voice output
+4. Type or speak: "Explain quantum entanglement"
+5. Read response and hear it spoken
+6. Check metadata: "Retrieved docs: 5 | Personality: 85%"
+7. Conversation auto-saved in sidebar
+```
 
 - **Real-time Chat**: Type questions and get instant responses
 - **Conversation Management**: Create, rename, and delete conversations
