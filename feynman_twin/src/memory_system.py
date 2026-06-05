@@ -9,7 +9,11 @@ import uuid
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from config import SESSION_MEMORY_FILE, PERSISTENT_MEMORY_FILE, CONVERSATION_HISTORY_DIR
+from config import SESSION_MEMORY_FILE, PERSISTENT_MEMORY_FILE, CONVERSATION_HISTORY_DIR, PRIMARY_MODEL, GEMINI_API_KEY
+from chat_history import ChatHistoryManager
+from teach_me import SpacedRepetitionEngine
+from personality import PersonalityAnalyzer
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 
 class SessionMemory:
@@ -234,6 +238,8 @@ class MemoryManager:
     def __init__(self):
         self.session_memory = SessionMemory()
         self.persistent_memory = PersistentMemory()
+        self.chat_history = ChatHistoryManager()
+        self.teach_me = SpacedRepetitionEngine()
 
     def get_context_for_query(self) -> str:
         """Get combined context from both memory systems"""
@@ -252,8 +258,12 @@ class MemoryManager:
 
         return context
 
-    def record_interaction(self, user_message: str, assistant_response: str):
-        """Record an interaction in both memory systems"""
+    def get_recent_messages(self, conv_id: str, limit: int = 10) -> List[Dict]:
+        """Retrieve recent messages for a conversation"""
+        return self.chat_history.get_recent_messages(conv_id, limit=limit)
+
+    def record_interaction(self, user_message: str, assistant_response: str, conv_id: str = None):
+        """Record an interaction in both memory systems, persistent chat file, and teach me mode."""
         # Session memory
         self.session_memory.add_message("user", user_message)
         self.session_memory.add_message("assistant", assistant_response)
@@ -261,12 +271,67 @@ class MemoryManager:
         # Persistent memory
         self.persistent_memory.increment_interaction_count()
 
+        # Save to chat history file if conv_id provided
+        if conv_id:
+            # We can compute/pass some metadata
+            self.chat_history.add_message(conv_id, "user", user_message)
+            self.chat_history.add_message(conv_id, "assistant", assistant_response)
+
         # Extract topics (simple keyword extraction)
         keywords = ["physics", "quantum", "learning", "science", "experiment", "understanding"]
         for keyword in keywords:
             if keyword.lower() in user_message.lower():
                 self.session_memory.add_topic(keyword)
                 self.persistent_memory.track_topic(keyword)
+
+        # Trigger card auto-generation for qualifying discussions
+        if len(assistant_response) > 300:
+            score = PersonalityAnalyzer.score_feynman_alignment(assistant_response)
+            if score > 0.6:
+                self.auto_generate_card(user_message, assistant_response, conv_id)
+
+    def auto_generate_card(self, user_message: str, assistant_response: str, conv_id: str = None):
+        """Auto-generate a quiz card using LLM based on conversation context."""
+        prompt = f"""Based on the following explanation by Richard Feynman:
+        
+"{assistant_response}"
+
+Create a quiz question that tests the user's understanding of the main physical concept explained. The question should follow the Feynman Technique style (asking the user to explain it in their own words or using an analogy).
+
+Return a JSON object with exactly these fields:
+- "topic": The general topic (e.g. "quantum mechanics", "entropy", "forces")
+- "question": The Feynman-style review question
+- "expected_key_points": A list of 2-4 key conceptual points that the user's explanation should include.
+
+Do not include any markdown format tags like ```json. Output only valid raw JSON."""
+        try:
+            if not GEMINI_API_KEY:
+                return
+            llm = ChatGoogleGenerativeAI(model=PRIMARY_MODEL, google_api_key=GEMINI_API_KEY)
+            res = llm.invoke(prompt)
+            clean_res = res.content.strip().replace("```json", "").replace("```", "")
+            if clean_res.startswith("json"):
+                clean_res = clean_res[4:].strip()
+            data = json.loads(clean_res)
+            
+            topic = data.get("topic", "physics")
+            question = data.get("question")
+            expected_key_points = data.get("expected_key_points", [])
+            
+            if question and expected_key_points:
+                self.teach_me.add_card(
+                    topic=topic,
+                    question=question,
+                    expected_key_points=expected_key_points,
+                    created_from=conv_id
+                )
+                logger.info(f"Auto-generated Teach Me card for topic: {topic}")
+        except Exception as e:
+            logger.error(f"Error auto-generating card: {e}")
+
+    def get_learning_stats(self) -> dict:
+        """Fetch statistics for Teach Me Mode."""
+        return self.teach_me.get_stats()
 
     def save_session(self) -> Path:
         """Save current session"""

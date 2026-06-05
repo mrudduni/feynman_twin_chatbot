@@ -8,10 +8,14 @@ from .main import FeynmanTwin
 from .memory_system import MemoryManager
 from .personality import FeynmanPersonality
 from .rag_system import RAGSystem
+from .chat_history import ChatHistoryManager
+from .teach_me import SpacedRepetitionEngine
 
 __all__ = [
     "FeynmanTwin",
     "MemoryManager",
     "FeynmanPersonality",
     "RAGSystem",
+    "ChatHistoryManager",
+    "SpacedRepetitionEngine",
 ]

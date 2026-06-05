@@ -8,49 +8,71 @@
 </head>
 <body>
   <div class="galaxy-overlay"></div>
-  <main class="app">
-    <header class="header">
-      <h1>Richard Feynman Digital Twin</h1>
-      <p class="subtitle">Ask questions and get answers from Sir Richard Feynman Himself.</p>
-      <div class="nav-links">
-        <a href="memory.html" target="_blank">🧠 Memory Dashboard</a>
+  
+  <div class="layout-container">
+    <!-- Collapsible Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <h2>Feynman Conversations</h2>
+        <button id="close-sidebar-btn" class="close-sidebar-btn" title="Close Sidebar">&times;</button>
       </div>
-      <div id="status" class="status status-waiting">Thinking..</div>
-    </header>
-
-    <section id="chat" class="chat"></section>
-
-    <form id="chat-form" class="composer">
-      <div class="input-controls">
-        <div class="length-selector">
-          <label for="answer-length">Answer Length:</label>
-          <select id="answer-length" name="answer-length">
-            <option value="brief">Brief</option>
-            <option value="medium" selected>Medium</option>
-            <option value="detailed">Detailed</option>
-          </select>
-        </div>
-        <div class="voice-controls">
-          <button type="button" id="voice-input-btn" class="voice-btn" title="Voice Input">
-            🎤
-          </button>
-          <button type="button" id="voice-toggle-btn" class="voice-btn" title="Toggle Voice Output">
-            🔊
-          </button>
+      <button id="new-chat-btn" class="new-chat-btn">+ New Chat</button>
+      <div class="conversations-list-container">
+        <div id="conversations-list" class="conversations-list">
+          <!-- Dynamically populated -->
         </div>
       </div>
-      <div class="composer-inputs">
-        <textarea
-          id="question-input"
-          name="question"
-          placeholder="Ask about physics, science, curiosity, or learning..."
-          rows="3"
-          required
-        ></textarea>
-        <button id="send-btn" type="submit">Send</button>
-      </div>
-    </form>
-  </main>
+    </aside>
+
+    <!-- Main Chat View -->
+    <main class="app">
+      <header class="header">
+        <div class="header-top">
+          <button id="toggle-sidebar-btn" class="toggle-sidebar-btn" title="Open Sidebar">☰</button>
+          <h1>Richard Feynman Digital Twin</h1>
+        </div>
+        <p class="subtitle">Ask questions and get answers from Sir Richard Feynman Himself.</p>
+        <div class="nav-links">
+          <a href="memory.html" target="_blank">🧠 Memory Dashboard</a>
+          <a href="teach_me.html" target="_blank">📚 Teach Me <span id="cards-due-badge" class="badge">0</span></a>
+        </div>
+        <div id="status" class="status status-waiting">Thinking..</div>
+      </header>
+
+      <section id="chat" class="chat"></section>
+
+      <form id="chat-form" class="composer">
+        <div class="input-controls">
+          <div class="length-selector">
+            <label for="answer-length">Answer Length:</label>
+            <select id="answer-length" name="answer-length">
+              <option value="brief">Brief</option>
+              <option value="medium" selected>Medium</option>
+              <option value="detailed">Detailed</option>
+            </select>
+          </div>
+          <div class="voice-controls">
+            <button type="button" id="voice-input-btn" class="voice-btn" title="Voice Input (requires internet)">
+              🎤
+            </button>
+            <button type="button" id="voice-toggle-btn" class="voice-btn" title="Toggle Voice Output">
+              🔊
+            </button>
+          </div>
+        </div>
+        <div class="composer-inputs">
+          <textarea
+            id="question-input"
+            name="question"
+            placeholder="Ask about physics, science, curiosity, or learning..."
+            rows="3"
+            required
+          ></textarea>
+          <button id="send-btn" type="submit">Send</button>
+        </div>
+      </form>
+    </main>
+  </div>
 
   <script src="./app.js"></script>
 </body>

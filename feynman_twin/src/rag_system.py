@@ -9,7 +9,7 @@ from typing import List, Dict, Optional, Tuple
 from dotenv import load_dotenv
 import chromadb
 from chromadb.config import Settings
-import google.generativeai as genai
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 
 # Load environment variables from .env file
 env_path = Path(__file__).parent.parent / ".env"
@@ -35,7 +35,7 @@ class RAGSystem:
 
     def __init__(self):
         """Initialize RAG system"""
-        genai.configure(api_key=GEMINI_API_KEY)
+        # API key verification will be handled by LangChain wrappers
         
         # Initialize ChromaDB with new client pattern
         self.client = chromadb.PersistentClient(
@@ -103,13 +103,14 @@ class RAGSystem:
             attempt = 0
             while attempt < max_attempts_per_model:
                 try:
-                    result = genai.embed_content(
+                    embedder = GoogleGenerativeAIEmbeddings(
                         model=model,
-                        content=text,
+                        google_api_key=GEMINI_API_KEY,
                         task_type=task_type,
                     )
+                    embedding = embedder.embed_query(text)
                     logger.debug(f"Successfully used model {model} for embedding")
-                    return result["embedding"]
+                    return embedding
                 except Exception as e:
                     # Gemini can respond with 429 and a suggested retry delay.
                     delay_s = self.extract_retry_delay_seconds(e)
@@ -335,15 +336,15 @@ Be willing to admit uncertainty and maintain his emphasis on understanding over 
 
             # Try primary model first
             try:
-                model = genai.GenerativeModel(PRIMARY_MODEL)
-                response = model.generate_content(full_prompt)
-                return response.text
+                llm = ChatGoogleGenerativeAI(model=PRIMARY_MODEL, google_api_key=GEMINI_API_KEY)
+                response = llm.invoke(full_prompt)
+                return response.content
             except Exception as e:
                 logger.warning(f"Primary model ({PRIMARY_MODEL}) failed: {e}, trying fallback")
                 # Use fallback model
-                model = genai.GenerativeModel(FALLBACK_MODEL)
-                response = model.generate_content(full_prompt)
-                return response.text
+                llm = ChatGoogleGenerativeAI(model=FALLBACK_MODEL, google_api_key=GEMINI_API_KEY)
+                response = llm.invoke(full_prompt)
+                return response.content
 
         except Exception as e:
             logger.error(f"Error generating response: {e}")

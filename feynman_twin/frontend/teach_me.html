@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teach Me Mode - Feynman Twin</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+    }
+    .teach-me-container {
+      width: min(900px, calc(100% - 2rem));
+      margin: 1.4rem auto;
+      padding: 1.5rem;
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    .header-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(149, 166, 255, 0.15);
+      padding-bottom: 1rem;
+    }
+    .header-nav h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, #a5b4fc, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header-nav .back-btn {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+    .header-nav .back-btn:hover {
+      color: #fff;
+    }
+    /* Stats grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: rgba(16, 21, 63, 0.4);
+      border: 1px solid rgba(149, 166, 255, 0.15);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(149, 166, 255, 0.3);
+    }
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+    .stat-card .label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    /* Quiz section */
+    .quiz-card {
+      background: rgba(6, 8, 22, 0.7);
+      border: 1px solid rgba(132, 147, 255, 0.2);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .quiz-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(to bottom, #6f82ff, #8b53ff);
+    }
+    .topic-tag {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 99px;
+      background: rgba(139, 83, 255, 0.2);
+      border: 1px solid rgba(139, 83, 255, 0.4);
+      color: #d8b4fe;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 1rem;
+    }
+    .question-text {
+      font-size: 1.35rem;
+      font-weight: 600;
+      line-height: 1.45;
+      margin: 0 0 1.5rem 0;
+      color: #fff;
+    }
+    /* Input answer */
+    .answer-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .answer-textarea {
+      width: 100%;
+      background: rgba(9, 11, 29, 0.9);
+      border: 1px solid rgba(153, 166, 255, 0.3);
+      border-radius: 12px;
+      color: #fff;
+      padding: 1rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      font-family: inherit;
+      resize: vertical;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .answer-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(133, 166, 255, 0.25);
+    }
+    .actions-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn-submit {
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      background: linear-gradient(135deg, #6f82ff, #8b53ff);
+      box-shadow: 0 4px 12px rgba(111, 130, 255, 0.3);
+      border-radius: 10px;
+      font-weight: 600;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-submit:hover {
+      opacity: 0.9;
+    }
+    .btn-submit:active {
+      transform: scale(0.98);
+    }
+    /* Progress bar */
+    .progress-container {
+      margin-bottom: 1rem;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+    .progress-bar-outer {
+      height: 6px;
+      background: rgba(149, 166, 255, 0.15);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-bar-inner {
+      height: 100%;
+      background: linear-gradient(to right, #6f82ff, #a855f7);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    /* Feedback Section */
+    .feedback-section {
+      margin-top: 1.5rem;
+      background: rgba(16, 21, 63, 0.5);
+      border: 1px solid rgba(149, 166, 255, 0.2);
+      border-radius: 12px;
+      padding: 1.5rem;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .stars-row {
+      display: flex;
+      gap: 0.25rem;
+      margin-bottom: 0.75rem;
+    }
+    .star {
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.15);
+    }
+    .star.filled {
+      color: #fbbf24;
+      text-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+    }
+    .feedback-text {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      margin-bottom: 1rem;
+    }
+    .points-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    @media (min-width: 600px) {
+      .points-list {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+      }
+    }
+    .points-box {
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .points-box.matched {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    .points-box.missed {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .points-box h4 {
+      margin: 0 0 0.5rem 0;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .points-box.matched h4 { color: #4ade80; }
+    .points-box.missed h4 { color: #f87171; }
+    .points-box ul {
+      margin: 0;
+      padding-left: 1.2rem;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+    }
+    .points-box li {
+      margin-bottom: 0.3rem;
+    }
+    .btn-next {
+      background: #8b53ff;
+      border: 1px solid rgba(139, 83, 255, 0.4);
+      padding: 0.8rem 2.2rem;
+      border-radius: 10px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      align-self: flex-end;
+    }
+    .btn-next:hover {
+      background: #9d6fff;
+    }
+    /* Card Manager Utility */
+    .card-manager-section {
+      margin-top: 3rem;
+      border-top: 1px solid rgba(149, 166, 255, 0.15);
+      padding-top: 2rem;
+    }
+    .card-manager-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .card-manager-header h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: #fff;
+    }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+    .card-item {
+      background: rgba(16, 21, 63, 0.3);
+      border: 1px solid rgba(149, 166, 255, 0.1);
+      border-radius: 10px;
+      padding: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .card-item-info {
+      flex: 1;
+    }
+    .card-item-info .card-q {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #e2e8f0;
+      margin-bottom: 0.2rem;
+    }
+    .card-item-info .card-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      gap: 0.8rem;
+    }
+    .btn-delete-card {
+      background: transparent;
+      border: none;
+      color: var(--error);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0.4rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .btn-delete-card:hover {
+      background: rgba(255, 125, 152, 0.15);
+    }
+    /* Summary layout */
+    .summary-container {
+      text-align: center;
+      padding: 2rem;
+    }
+    .summary-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes pop {
+      0% { transform: scale(0.5); }
+      100% { transform: scale(1); }
+    }
+    .btn-restart {
+      background: linear-gradient(135deg, #6f82ff, #8b53ff);
+      padding: 0.8rem 2.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="galaxy-overlay"></div>
+  
+  <div class="teach-me-container">
+    <header class="header-nav">
+      <h1>📚 Teach Me Mode</h1>
+      <a href="index.html" class="back-btn">← Back to Chat</a>
+    </header>
+
+    <!-- Stats Dashboard -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div id="stat-due" class="value">-</div>
+        <div class="label">Cards Due</div>
+      </div>
+      <div class="stat-card">
+        <div id="stat-mastery" class="value">-%</div>
+        <div class="label">Mastery Level</div>
+      </div>
+      <div class="stat-card">
+        <div id="stat-streak" class="value">-</div>
+        <div class="label">Daily Streak</div>
+      </div>
+      <div class="stat-card">
+        <div id="stat-total" class="value">-</div>
+        <div class="label">Total Cards</div>
+      </div>
+    </section>
+
+    <!-- Active Quiz Area -->
+    <section id="quiz-area">
+      <div class="progress-container">
+        <div class="progress-info">
+          <span id="progress-text">Loading session...</span>
+          <span id="progress-percent">0%</span>
+        </div>
+        <div class="progress-bar-outer">
+          <div id="progress-bar-inner" class="progress-bar-inner"></div>
+        </div>
+      </div>
+
+      <div id="question-card" class="quiz-card" style="display: none;">
+        <span id="question-topic" class="topic-tag">Physics</span>
+        <h3 id="question-text" class="question-text">Loading question...</h3>
+        
+        <form id="answer-form" class="answer-form">
+          <textarea 
+            id="answer-input" 
+            class="answer-textarea" 
+            placeholder="Explain this concept in your own words, just as you would explain it to a child..." 
+            rows="5" 
+            required
+          ></textarea>
+          
+          <div class="actions-row">
+            <span id="saving-indicator" style="display:none; color: var(--muted); font-size: 0.9rem;">Grading explanation...</span>
+            <button type="submit" id="submit-answer-btn" class="btn-submit">Submit Explanation</button>
+          </div>
+        </form>
+
+        <!-- Feedback Area -->
+        <div id="feedback-area" class="feedback-section" style="display: none;">
+          <div class="stars-row" id="stars-row">
+            <!-- Dynamically populated stars -->
+          </div>
+          <p id="feedback-text" class="feedback-text"></p>
+          
+          <div class="points-list">
+            <div class="points-box matched">
+              <h4>Key Points You Hit</h4>
+              <ul id="points-matched-list"></ul>
+            </div>
+            <div class="points-box missed">
+              <h4>Points to Improve</h4>
+              <ul id="points-missed-list"></ul>
+            </div>
+          </div>
+          
+          <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+            <button id="next-question-btn" class="btn-next">Next Question →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- No cards state or loading -->
+      <div id="session-intro" class="summary-container" style="display: block;">
+        <div class="summary-icon">🎓</div>
+        <h2>Test Your Understanding</h2>
+        <p>Ready to explain physics concepts using the Feynman Technique? I'll schedule reviews using spaced repetition.</p>
+        <button id="start-session-btn" class="btn-submit" style="margin-top: 1rem;">Start Review Session</button>
+      </div>
+
+      <!-- Session Completed Summary -->
+      <div id="session-summary" class="summary-container" style="display: none;">
+        <div class="summary-icon">🏆</div>
+        <h2>Review Complete!</h2>
+        <p id="summary-text"></p>
+        <button id="restart-session-btn" class="btn-restart">Done</button>
+      </div>
+    </section>
+
+    <!-- Card Manager Section -->
+    <section class="card-manager-section">
+      <div class="card-manager-header">
+        <h3>Your Learning Cards</h3>
+      </div>
+      <div id="cards-grid" class="cards-grid">
+        <p style="color: var(--muted); font-size: 0.9rem; text-align: center; width: 100%;">No cards created yet. Have a conversation first!</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:8000";
+    
+    // UI elements
+    const statDue = document.getElementById("stat-due");
+    const statMastery = document.getElementById("stat-mastery");
+    const statStreak = document.getElementById("stat-streak");
+    const statTotal = document.getElementById("stat-total");
+    
+    const quizArea = document.getElementById("quiz-area");
+    const sessionIntro = document.getElementById("session-intro");
+    const sessionSummary = document.getElementById("session-summary");
+    const questionCard = document.getElementById("question-card");
+    
+    const startSessionBtn = document.getElementById("start-session-btn");
+    const restartSessionBtn = document.getElementById("restart-session-btn");
+    const nextQuestionBtn = document.getElementById("next-question-btn");
+    
+    const progressText = document.getElementById("progress-text");
+    const progressPercent = document.getElementById("progress-percent");
+    const progressBarInner = document.getElementById("progress-bar-inner");
+    
+    const questionTopic = document.getElementById("question-topic");
+    const questionText = document.getElementById("question-text");
+    const answerForm = document.getElementById("answer-form");
+    const answerInput = document.getElementById("answer-input");
+    const submitAnswerBtn = document.getElementById("submit-answer-btn");
+    const savingIndicator = document.getElementById("saving-indicator");
+    
+    const feedbackArea = document.getElementById("feedback-area");
+    const feedbackTextEl = document.getElementById("feedback-text");
+    const starsRow = document.getElementById("stars-row");
+    const pointsMatchedList = document.getElementById("points-matched-list");
+    const pointsMissedList = document.getElementById("points-missed-list");
+    
+    const cardsGrid = document.getElementById("cards-grid");
+
+    // Session state
+    let sessionQuestions = [];
+    let currentQuestionIdx = 0;
+    
+    // Load Stats and Cards
+    async function loadDashboard() {
+      try {
+        const statsRes = await fetch(`${API_BASE}/api/teach-me/stats`);
+        if (statsRes.ok) {
+          const stats = await statsRes.json();
+          statDue.textContent = stats.cards_due;
+          statMastery.textContent = `${stats.mastery_percentage}%`;
+          statStreak.textContent = `${stats.streak} days`;
+          statTotal.textContent = stats.total_cards;
+        }
+        
+        const cardsRes = await fetch(`${API_BASE}/api/teach-me/cards`);
+        if (cardsRes.ok) {
+          const cards = await cardsRes.json();
+          renderCards(cards);
+        }
+      } catch (err) {
+        console.error("Error loading stats/cards:", err);
+      }
+    }
+    
+    function renderCards(cards) {
+      cardsGrid.innerHTML = "";
+      if (cards.length === 0) {
+        cardsGrid.innerHTML = `<p style="color: var(--muted); font-size: 0.9rem; text-align: center; width: 100%;">No cards created yet. Discuss physics concepts with Feynman to generate cards!</p>`;
+        return;
+      }
+      
+      cards.forEach(card => {
+        const item = document.createElement("div");
+        item.className = "card-item";
+        
+        const nextReviewStr = card.sm2_data.next_review ? new Date(card.sm2_data.next_review).toLocaleDateString() : "Now";
+        
+        item.innerHTML = `
+          <div class="card-item-info">
+            <div class="card-q">${card.question}</div>
+            <div class="card-meta">
+              <span>Topic: <strong>${card.topic}</strong></span>
+              <span>Repetitions: <strong>${card.sm2_data.repetition}</strong></span>
+              <span>Next Review: <strong>${nextReviewStr}</strong></span>
+            </div>
+          </div>
+          <button class="btn-delete-card" title="Delete card" data-id="${card.id}">🗑</button>
+        `;
+        cardsGrid.appendChild(item);
+      });
+      
+      // Hook delete buttons
+      document.querySelectorAll(".btn-delete-card").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          const cardId = e.target.getAttribute("data-id");
+          if (confirm("Delete this review card?")) {
+            try {
+              const res = await fetch(`${API_BASE}/api/teach-me/cards/${cardId}`, {
+                method: "DELETE"
+              });
+              if (res.ok) {
+                loadDashboard();
+              }
+            } catch (err) {
+              console.error("Error deleting card:", err);
+            }
+          }
+        });
+      });
+    }
+
+    // Start Session
+    startSessionBtn.addEventListener("click", async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/teach-me/start`, { method: "POST" });
+        if (!res.ok) throw new Error("Failed to start session");
+        
+        sessionQuestions = await res.json();
+        if (sessionQuestions.length === 0) {
+          alert("You have no cards to review yet. Chat with Feynman first!");
+          return;
+        }
+        
+        currentQuestionIdx = 0;
+        sessionIntro.style.display = "none";
+        sessionSummary.style.display = "none";
+        questionCard.style.display = "block";
+        
+        showQuestion();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+    
+    function showQuestion() {
+      if (currentQuestionIdx >= sessionQuestions.length) {
+        finishSession();
+        return;
+      }
+      
+      // Update progress bar
+      const qNum = currentQuestionIdx + 1;
+      const total = sessionQuestions.length;
+      const pct = Math.round((currentQuestionIdx / total) * 100);
+      progressText.textContent = `Question ${qNum} of ${total}`;
+      progressPercent.textContent = `${pct}%`;
+      progressBarInner.style.style = `width: ${pct}%`; // fallback
+      progressBarInner.style.width = `${pct}%`;
+      
+      const card = sessionQuestions[currentQuestionIdx];
+      questionTopic.textContent = card.topic;
+      questionText.textContent = card.question;
+      
+      answerInput.value = "";
+      answerInput.disabled = false;
+      submitAnswerBtn.disabled = false;
+      submitAnswerBtn.style.display = "block";
+      savingIndicator.style.display = "none";
+      feedbackArea.style.display = "none";
+    }
+
+    // Submit Answer
+    answerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const answer = answerInput.value.trim();
+      if (!answer) return;
+      
+      answerInput.disabled = true;
+      submitAnswerBtn.disabled = true;
+      submitAnswerBtn.style.display = "none";
+      savingIndicator.style.display = "inline";
+      
+      const card = sessionQuestions[currentQuestionIdx];
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/teach-me/answer`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ card_id: card.id, user_answer: answer })
+        });
+        
+        if (!res.ok) throw new Error("Grading request failed");
+        const feedback = await res.json();
+        
+        savingIndicator.style.display = "none";
+        renderFeedback(feedback);
+      } catch (err) {
+        alert("Error grading answer: " + err.message);
+        answerInput.disabled = false;
+        submitAnswerBtn.disabled = false;
+        submitAnswerBtn.style.display = "block";
+        savingIndicator.style.display = "none";
+      }
+    });
+    
+    function renderFeedback(feedback) {
+      feedbackArea.style.display = "block";
+      feedbackTextEl.textContent = feedback.feedback;
+      
+      // Stars (0-5)
+      starsRow.innerHTML = "";
+      for (let i = 1; i <= 5; i++) {
+        const star = document.createElement("span");
+        star.className = `star ${i <= feedback.score ? 'filled' : ''}`;
+        star.textContent = "★";
+        starsRow.appendChild(star);
+      }
+      
+      // Matched points
+      pointsMatchedList.innerHTML = "";
+      if (feedback.key_points_matched.length === 0) {
+        pointsMatchedList.innerHTML = "<li>None identified</li>";
+      } else {
+        feedback.key_points_matched.forEach(pt => {
+          const li = document.createElement("li");
+          li.textContent = pt;
+          pointsMatchedList.appendChild(li);
+        });
+      }
+      
+      // Missed points
+      pointsMissedList.innerHTML = "";
+      if (feedback.key_points_missed.length === 0) {
+        pointsMissedList.innerHTML = "<li>None! Perfect recall!</li>";
+      } else {
+        feedback.key_points_missed.forEach(pt => {
+          const li = document.createElement("li");
+          li.textContent = pt;
+          pointsMissedList.appendChild(li);
+        });
+      }
+      
+      // Scroll to feedback
+      feedbackArea.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Next Question
+    nextQuestionBtn.addEventListener("click", () => {
+      currentQuestionIdx++;
+      showQuestion();
+    });
+    
+    // Finish session
+    function finishSession() {
+      questionCard.style.display = "none";
+      sessionSummary.style.display = "block";
+      
+      progressText.textContent = "Session Complete";
+      progressPercent.textContent = "100%";
+      progressBarInner.style.width = "100%";
+      
+      let summaryStr = `You reviewed ${sessionQuestions.length} concept cards today.`;
+      
+      summaryText.textContent = summaryStr;
+      loadDashboard(); // Reload stats
+    }
+    
+    restartSessionBtn.addEventListener("click", () => {
+      sessionSummary.style.display = "none";
+      sessionIntro.style.display = "block";
+      progressText.textContent = "Ready to start";
+      progressPercent.textContent = "0%";
+      progressBarInner.style.width = "0%";
+    });
+
+    // Init
+    loadDashboard();
+  </script>
+</body>
+</html>

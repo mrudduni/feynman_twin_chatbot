@@ -84,88 +84,78 @@ TIMELINE AWARENESS:
 
         return base_prompt
 
-    def answer_question(self, question: str, answer_length: str = "medium") -> Tuple[str, dict]:
+    def answer_question(self, question: str, answer_length: str = "medium", conversation_id: str = None) -> Tuple[str, dict]:
         """
-        Answer a question as Feynman would.
+        Answer a question as Feynman would, using a LangGraph reasoning agent.
         
         Args:
             question: The question to answer
             answer_length: Length of answer - "brief", "medium", or "detailed"
-
+            conversation_id: Optional ID of the conversation to load history and append to
+ 
         Returns:
             Tuple of (response_text, metadata)
         """
-        logger.info(f"Processing question: {question} (length: {answer_length})")
-
+        logger.info(f"Processing question: {question} (length: {answer_length}, conv_id: {conversation_id})")
+ 
         metadata = {
             "question": question,
             "retrieved_docs": 0,
             "personality_score": 0.0,
-            "model_used": "unknown",
+            "model_used": PRIMARY_MODEL,
         }
-
+ 
         try:
-            # Step 1: Retrieve relevant knowledge
+            system_prompt = self._prepare_system_prompt(answer_length)
+            
+            # Fetch recent chat history if conversation_id provided
+            chat_history = None
+            if conversation_id:
+                chat_history = self.memory_manager.get_recent_messages(conversation_id)
+ 
+            # Step 1: Run LangGraph Agent
+            langgraph_ok = False
             response = ""
-            retrieved_docs = []
-
-            if self.rag_ready:
-                system_prompt = self._prepare_system_prompt(answer_length)
-                response, retrieved_docs = self.rag_system.query(question, system_prompt)
+            try:
+                from agent_graph import run_agent
+                response, agent_metadata = run_agent(
+                    query=question,
+                    system_prompt=system_prompt,
+                    rag_system=self.rag_system,
+                    memory_manager=self.memory_manager,
+                    chat_history=chat_history
+                )
+                metadata.update(agent_metadata)
+                langgraph_ok = True
+            except Exception as e:
+                logger.error(f"LangGraph execution failed, using fallback: {e}")
+ 
+            if not langgraph_ok:
+                # Fallback to single-shot flow using retrieve + generate_response
+                retrieved_docs = []
+                if self.rag_ready:
+                    retrieved_docs = self.rag_system.retrieve(question, top_k=5)
+                    response = self.rag_system.generate_response(question, retrieved_docs, system_prompt)
+                else:
+                    response = self.rag_system.generate_response(question, [], system_prompt)
+                
                 metadata["retrieved_docs"] = len(retrieved_docs)
-            else:
-                # Fallback if RAG not ready - use personality-based response
-                logger.warning("RAG system not ready, using personality-based response")
-                system_prompt = self._prepare_system_prompt(answer_length)
-                response = self._generate_fallback_response(question, system_prompt)
-
-            # Step 2: Enhance with teaching style
-            response = TeachingStyler.add_personal_touch(response)
-
-            # Step 3: Verify personality alignment
-            personality_score = PersonalityAnalyzer.score_feynman_alignment(response)
-            metadata["personality_score"] = personality_score
-
-            # Step 4: Record in memory
-            self.memory_manager.record_interaction(question, response)
-
-            # Step 5: Extract and store insights
+                response = TeachingStyler.add_personal_touch(response)
+                response = TeachingStyler.make_socratic(response)
+                metadata["personality_score"] = PersonalityAnalyzer.score_feynman_alignment(response)
+ 
+            # Step 2: Record in memory
+            self.memory_manager.record_interaction(question, response, conv_id=conversation_id)
+ 
+            # Step 3: Extract and store insights
             self._extract_insights(question, response)
-
-            logger.info(f"Response generated with personality score: {personality_score:.2f}")
-
+ 
+            logger.info(f"Response generated successfully")
             return response, metadata
-
+ 
         except Exception as e:
             logger.error(f"Error processing question: {e}")
             return f"I encountered an unexpected error: {str(e)}", metadata
-
-    def _generate_fallback_response(self, question: str, system_prompt: str) -> str:
-        """Generate response without RAG (fallback mode)"""
-        import google.generativeai as genai
-
-        try:
-            from config import PRIMARY_MODEL, FALLBACK_MODEL
-
-            full_prompt = f"""{system_prompt}
-
-User question: {question}
-
-Generate a response that demonstrates Feynman's characteristic teaching style - clear, curious, and engaging."""
-
-            try:
-                model = genai.GenerativeModel(PRIMARY_MODEL)
-                response = model.generate_content(full_prompt)
-                return response.text
-            except Exception as e:
-                logger.warning(f"Primary model failed: {e}, using fallback")
-                model = genai.GenerativeModel(FALLBACK_MODEL)
-                response = model.generate_content(full_prompt)
-                return response.text
-
-        except Exception as e:
-            logger.error(f"Error in fallback response: {e}")
-            return "I apologize, but I'm having difficulty accessing my knowledge systems at the moment."
 
     def _extract_insights(self, question: str, response: str):
         """Extract and store key insights"""

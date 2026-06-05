@@ -42,6 +42,7 @@ SESSION_MEMORY_FILE = MEMORY_DIR / "session_memory.json"
 PERSISTENT_MEMORY_FILE = MEMORY_DIR / "persistent_memory.json"
 CONVERSATION_HISTORY_DIR = MEMORY_DIR / "conversations"
 CONVERSATION_HISTORY_DIR.mkdir(parents=True, exist_ok=True)
+TEACH_ME_CARDS_FILE = MEMORY_DIR / "teach_me_cards.json"
 
 # Personality parameters
 FEYNMAN_PERSONALITY = {

@@ -37,11 +37,13 @@ app.add_middleware(
 class ChatRequest(BaseModel):
     question: str = Field(min_length=1, max_length=5000)
     answer_length: str = Field(default="medium", pattern="^(brief|medium|detailed)$")
+    conversation_id: str | None = None
 
 
 class ChatResponse(BaseModel):
     answer: str
     metadata: dict
+    conversation_id: str
 
 
 twin: FeynmanTwin | None = None
@@ -115,6 +117,118 @@ def chat(payload: ChatRequest) -> ChatResponse:
     if not question:
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
-    answer, metadata = twin.answer_question(question, answer_length=payload.answer_length)
-    return ChatResponse(answer=answer, metadata=metadata)
+    conv_id = payload.conversation_id
+    if not conv_id:
+        # Create a new conversation
+        conv = twin.memory_manager.chat_history.create_conversation()
+        conv_id = conv["id"]
+        # Auto-title based on first question
+        title = twin.memory_manager.chat_history.auto_title(conv_id, question)
+        twin.memory_manager.chat_history.rename_conversation(conv_id, title)
+
+    answer, metadata = twin.answer_question(question, answer_length=payload.answer_length, conversation_id=conv_id)
+    return ChatResponse(answer=answer, metadata=metadata, conversation_id=conv_id)
+
+
+# ==================== CHAT HISTORY ENDPOINTS ====================
+
+@app.get("/api/conversations")
+def get_conversations() -> list:
+    if twin is None:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+    return twin.memory_manager.chat_history.list_conversations()
+
+
+@app.post("/api/conversations")
+def create_conversation() -> dict:
+    if twin is None:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+    return twin.memory_manager.chat_history.create_conversation()
+
+
+@app.get("/api/conversations/{id}")
+def get_conversation(id: str) -> dict:
+    if twin is None:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+    conv = twin.memory_manager.chat_history.get_conversation(id)
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    return conv
+
+
+@app.delete("/api/conversations/{id}")
+def delete_conversation(id: str) -> dict:
+    if twin is None:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+    success = twin.memory_manager.chat_history.delete_conversation(id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    return {"status": "success", "message": "Conversation deleted"}
+
+
+class RenameRequest(BaseModel):
+    title: str
+
+@app.patch("/api/conversations/{id}")
+def rename_conversation(id: str, payload: RenameRequest) -> dict:
+    if twin is None:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+    conv = twin.memory_manager.chat_history.rename_conversation(id, payload.title)
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    return conv
+
+
+# ==================== TEACH ME MODE ENDPOINTS ====================
+
+@app.post("/api/teach-me/start")
+def start_quiz(num_questions: int = 5) -> list:
+    if twin is None:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+    from teach_me import TeachMeSession
+    twin.teach_me_session = TeachMeSession(twin.memory_manager.teach_me)
+    return twin.teach_me_session.start_session(num_questions=num_questions)
+
+
+class AnswerRequest(BaseModel):
+    card_id: str
+    user_answer: str
+
+@app.post("/api/teach-me/answer")
+def submit_answer(payload: AnswerRequest) -> dict:
+    if twin is None:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+    
+    if not hasattr(twin, "teach_me_session") or twin.teach_me_session is None:
+        from teach_me import TeachMeSession
+        twin.teach_me_session = TeachMeSession(twin.memory_manager.teach_me)
+        
+    try:
+        return twin.teach_me_session.submit_answer(payload.card_id, payload.user_answer)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.get("/api/teach-me/stats")
+def get_quiz_stats() -> dict:
+    if twin is None:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+    return twin.memory_manager.get_learning_stats()
+
+
+@app.get("/api/teach-me/cards")
+def get_cards() -> list:
+    if twin is None:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+    return twin.memory_manager.teach_me.data["cards"]
+
+
+@app.delete("/api/teach-me/cards/{id}")
+def delete_card(id: str) -> dict:
+    if twin is None:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+    success = twin.memory_manager.teach_me.remove_card(id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Card not found")
+    return {"status": "success", "message": "Card deleted"}
 
