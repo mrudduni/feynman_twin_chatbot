@@ -10,6 +10,12 @@ A sophisticated AI system that recreates Richard Feynman's unique teaching style
 - Maintains Feynman's original ideas and perspectives
 - Local embeddings using sentence-transformers (no API quota limits)
 
+**LangGraph Multi-Step Reasoning**
+- Advanced agent orchestration using LangGraph 0.4.0+
+- Multi-step reasoning workflow with query classification
+- Retrieval evaluation and response refinement
+- Automatic fallback to simple RAG if agent fails
+
 **Dual Memory Systems**
 - **Session Memory**: Tracks conversation history within a session
 - **Persistent Memory**: Learns about you across sessions, remembers discussed topics
@@ -301,21 +307,34 @@ Text Chunking & Processing
 Processed Chunks (optimized for embeddings)
 ```
 
-### 2. RAG System
+### 2. LangGraph Agent + RAG System
 
 ```
 User Question
     ↓
-Embedding Generation (Gemini)
-    ↓
-Vector Similarity Search (ChromaDB)
-    ↓
-Top 5 Relevant Documents Retrieved
-    ↓
-Context + Question → Gemini Model
+LangGraph Agent (Multi-Step Reasoning)
+    ├─→ Step 1: Query Classification
+    │   (simple/complex/multi_part)
+    ├─→ Step 2: Embedding Generation (Gemini)
+    ├─→ Step 3: Vector Similarity Search (ChromaDB)
+    │   (Top 5 Relevant Documents)
+    ├─→ Step 4: Retrieval Evaluation
+    │   (Check relevance, decide if re-retrieval needed)
+    ├─→ Step 5: Response Generation
+    │   (Context + Question → Gemini Model)
+    └─→ Step 6: Response Refinement
+        (Apply Feynman's teaching style)
     ↓
 Feynman-styled Response
+    ↓
+[Fallback to Simple RAG if Agent Fails]
 ```
+
+**LangGraph State Management:**
+- Maintains conversation state across reasoning steps
+- Tracks query type, retrieval attempts, and document quality
+- Supports iterative refinement and re-retrieval
+- Preserves message history for context awareness
 
 ### 3. Memory Systems
 
@@ -598,9 +617,11 @@ For issues or questions:
 ### v2.1 (June 2026)
 - **Fixed**: "Retrieved docs: 0" display bug
 - **Upgraded**: ChromaDB from 0.4.24 to 1.5.9
-- **Enhanced**: Query classification logic
+- **Added**: LangGraph 0.4.0+ multi-step reasoning agent
+- **Enhanced**: Query classification logic with LangGraph state management
 - **Added**: Comprehensive logging throughout agent workflow
 - **Improved**: Metadata flow from agent to frontend
+- **Added**: Automatic fallback from LangGraph to simple RAG
 
 ### v2.0 (June 2026)
 - Voice interaction (speech-to-text and text-to-speech)
